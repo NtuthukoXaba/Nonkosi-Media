@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Journalist Dashboard - Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    .header {
+      background-color: #0b3c5d;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #f22e3e;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+    }
+
+    .container {
+      padding: 30px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #0b3c5d;
+    }
+
+    .dashboard-cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+
+    .card {
+      background-color: white;
+      border-left: 8px solid #f22e3e;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.3em;
+      color: #0b3c5d;
+    }
+
+    .card p {
+      font-size: 0.95em;
+    }
+
+    .actions {
+      margin-top: 40px;
+    }
+
+    .actions button {
+      background-color: #0b3c5d;
+      color: white;
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .actions button:hover {
+      background-color: #09324d;
+    }
+
+    footer {
+      background-color: #0b3c5d;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      margin-top: 60px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-cards {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .card {
+        width: 90%;
+      }
+
+      .actions {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">Nonkosi Media</div>
+    <nav class="nav-links">
+      <a href="#">Dashboard</a>
+      <a href="#">My Articles</a>
+      <a href="#">Submit News</a>
+      <a href="#">Logout</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Welcome, Journalist!</h1>
+    <p>Manage your Maskandi news contributions and track performance below.</p>
+
+    <div class="dashboard-cards">
+      <div class="card">
+        <h2>📝 My Articles</h2>
+        <p>View and edit all articles you’ve submitted. Keep them up to date and relevant.</p>
+      </div>
+      <div class="card">
+        <h2>📢 Submit News</h2>
+        <p>Create a new Maskandi news article and submit it for admin approval.</p>
+      </div>
+      <div class="card">
+        <h2>📊 Article Stats</h2>
+        <p>See which articles are performing well. Track views and interactions.</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="location.href='#'">Create New Article</button>
+      <button onclick="location.href='#'">View My Articles</button>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Nonkosi Media. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
