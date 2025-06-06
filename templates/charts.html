@@ -129,7 +129,7 @@
       {% for song in top_songs %}
       <div class="chart-item">
         <div class="chart-position">{{ song.chart_position }}</div>
-        <img src="{{ url_for('static', filename='uploads/' + song.cover_image) }}" 
+        <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" 
              alt="{{ song.title }}" class="chart-cover">
         <div class="chart-info">
           <h3>{{ song.title }}</h3>
