@@ -1,0 +1,73 @@
+<!-- Add Journalist Modal -->
+<div id="addJournalistModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAddJournalistModal()">&times;</span>
+    <h2>Add New Journalist</h2>
+    <form id="addJournalistForm" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="journalist">Journalist</option>
+          <option value="senior_journalist">Senior Journalist</option>
+          <option value="editor">Editor</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="password">Temporary Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <div class="form-group">
+        <label for="profile_pic">Profile Photo</label>
+        <input type="file" id="profile_pic" name="profile_pic" accept="image/*">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="closeAddJournalistModal()">Cancel</button>
+        <button type="submit" class="btn">Save Journalist</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Journalist Modal -->
+<div id="editJournalistModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditJournalistModal()">&times;</span>
+    <h2>Edit Journalist</h2>
+    <form id="editJournalistForm" enctype="multipart/form-data">
+      <input type="hidden" id="editJournalistId" name="id">
+      <div class="form-group">
+        <label for="editJournalistName">Username</label>
+        <input type="text" id="editJournalistName" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="editJournalistEmail">Email</label>
+        <input type="email" id="editJournalistEmail" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="editJournalistRole">Role</label>
+        <select id="editJournalistRole" name="role" required>
+          <option value="journalist">Journalist</option>
+          <option value="senior_journalist">Senior Journalist</option>
+          <option value="editor">Editor</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="editJournalistPhoto">Profile Photo</label>
+        <input type="file" id="editJournalistPhoto" name="profile_pic" accept="image/*">
+        <small>Leave blank to keep current photo</small>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="closeEditJournalistModal()">Cancel</button>
+        <button type="submit" class="btn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
