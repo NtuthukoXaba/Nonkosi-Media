@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting Events Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    .event-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid #0d6efd;
+    }
+    .event-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .active-event {
+      border-left-color: #198754;
+    }
+    .inactive-event {
+      border-left-color: #6c757d;
+    }
+    .nominee-item {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .nominee-item:hover {
+      background-color: #f8f9fa;
+    }
+    .nominee-item.selected {
+      background-color: #e7f1ff;
+      border-color: #86b7fe;
+    }
+    .tab-content {
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="mb-0">Voting Events</h1>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
+        <i class="bi bi-plus-lg"></i> Create New Event
+      </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs" id="votingTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">All Events</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="create-tab" data-bs-toggle="tab" data-bs-target="#create" type="button" role="tab">Create Event</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="nominees-tab" data-bs-toggle="tab" data-bs-target="#nominees" type="button" role="tab" disabled>Add Nominees</button>
+      </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="votingTabsContent">
+      <!-- Events List Tab -->
+      <div class="tab-pane fade show active" id="events" role="tabpanel">
+        <div class="row">
+          {% for event in events %}
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card event-card h-100 {% if event.is_active %}active-event{% else %}inactive-event{% endif %}">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <h5 class="card-title">{{ event.title }}</h5>
+                  <span class="badge bg-{% if event.is_active %}success{% else %}secondary{% endif %}">
+                    {% if event.is_active %}Active{% else %}Inactive{% endif %}
+                  </span>
+                </div>
+                <h6 class="card-subtitle mb-2 text-muted">{{ event.category.replace('_', ' ')|title }}</h6>
+                <p class="card-text">
+                  <small class="text-muted">
+                    Ends: {{ event.end_date.strftime('%Y-%m-%d %H:%M') }}
+                  </small>
+                </p>
+                <div class="d-flex justify-content-between">
+                  <span class="text-muted">{{ event.nominees|length }} nominees</span>
+                  <div>
+                    {% if event.is_active %}
+                      <button class="btn btn-sm btn-outline-secondary" onclick="deactivateEvent({{ event.id }})">
+                        Deactivate
+                      </button>
+                    {% else %}
+                      <button class="btn btn-sm btn-outline-success" onclick="activateEvent({{ event.id }})">
+                        Activate
+                      </button>
+                    {% endif %}
+                    <button class="btn btn-sm btn-primary" onclick="loadNomineesTab({{ event.id }})">
+                      Manage Nominees
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% else %}
+          <div class="col-12">
+            <div class="alert alert-info">No voting events found. Create one to get started!</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Create Event Tab -->
+      <div class="tab-pane fade" id="create" role="tabpanel">
+        <form id="createEventForm" onsubmit="return createEvent(event)">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="eventTitle" class="form-label">Event Title</label>
+              <input type="text" class="form-control" id="eventTitle" required>
+            </div>
+            <div class="col-md-6">
+              <label for="eventCategory" class="form-label">Category</label>
+              <select class="form-select" id="eventCategory" required>
+                <option value="">Select a category</option>
+                <option value="song_month">Song of the Month</option>
+                <option value="artist_month">Artist of the Month</option>
+                <option value="song_year">Song of the Year</option>
+                <option value="artist_year">Artist of the Year</option>
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="eventEndDate" class="form-label">End Date & Time</label>
+              <input type="datetime-local" class="form-control" id="eventEndDate" required>
+            </div>
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="submit" class="btn btn-primary">Create Event</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Add Nominees Tab -->
+      <div class="tab-pane fade" id="nominees" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 id="nomineesEventTitle">Event Title</h4>
+          <button class="btn btn-success" onclick="saveNominees()">
+            <i class="bi bi-save"></i> Save Nominees
+          </button>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-5">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Available {% if nominee_type == 'song' %}Songs{% else %}Artists{% endif %}</h5>
+              </div>
+              <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                <div class="input-group mb-3">
+                  <input type="text" class="form-control" placeholder="Search..." id="searchNominees">
+                  <button class="btn btn-outline-secondary" type="button">
+                    <i class="bi bi-search"></i>
+                  </button>
+                </div>
+                <div class="list-group" id="availableNominees">
+                  <!-- Items will be loaded via JavaScript -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 d-flex align-items-center justify-content-center">
+            <div class="d-grid gap-2">
+              <button class="btn btn-outline-primary" onclick="addSelectedNominees()">
+                <i class="bi bi-arrow-right"></i>
+              </button>
+              <button class="btn btn-outline-secondary" onclick="removeSelectedNominees()">
+                <i class="bi bi-arrow-left"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Selected Nominees (Max: 5)</h5>
+              </div>
+              <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                <div class="list-group" id="selectedNominees">
+                  <!-- Selected items will appear here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="successToastBody"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Global variables
+    let currentEventId = null;
+    let nomineeType = '';
+    let allItems = [];
+    let selectedItems = [];
+
+    // Initialize Bootstrap components
+    const toast = new bootstrap.Toast(document.getElementById('successToast'));
+
+    // Show success message
+    function showSuccess(message) {
+      document.getElementById('successToastBody').textContent = message;
+      toast.show();
+    }
+
+    // Load nominees tab with event data
+    function loadNomineesTab(eventId) {
+      // Switch to nominees tab
+      const nomineesTab = document.getElementById('nominees-tab');
+      nomineesTab.disabled = false;
+      const tab = new bootstrap.Tab(nomineesTab);
+      tab.show();
+
+      // Fetch event details and load nominees
+      fetch(`/admin/get_event_details/${eventId}`)
+        .then(response => response.json())
+        .then(data => {
+          currentEventId = eventId;
+          nomineeType = data.category.includes('song') ? 'song' : 'artist';
+          document.getElementById('nomineesEventTitle').textContent = data.title;
+          
+          // Load available items based on type
+          fetch(`/api/${nomineeType === 'song' ? 'songs' : 'artists'}`)
+            .then(response => response.json())
+            .then(items => {
+              allItems = items;
+              renderAvailableNominees();
+              
+              // Load already selected nominees
+              fetch(`/admin/get_event_nominees/${eventId}`)
+                .then(response => response.json())
+                .then(nominees => {
+                  selectedItems = nominees;
+                  renderSelectedNominees();
+                });
+            });
+        });
+    }
+
+    // Render available nominees
+    function renderAvailableNominees() {
+      const container = document.getElementById('availableNominees');
+      container.innerHTML = '';
+      
+      const availableItems = allItems.filter(item => 
+        !selectedItems.some(selected => selected.nominee_id === item.id)
+      );
+      
+      availableItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'list-group-item nominee-item';
+        div.dataset.id = item.id;
+        div.innerHTML = `
+          <div class="d-flex align-items-center">
+            <img src="/static/uploads/${item.image || 'default.jpg'}" 
+                 class="rounded me-3" width="50" height="50">
+            <div>
+              <h6 class="mb-0">${item.name || item.title}</h6>
+              ${nomineeType === 'song' ? `<small class="text-muted">${item.artist || ''}</small>` : ''}
+            </div>
+          </div>
+        `;
+        div.addEventListener('click', function() {
+          this.classList.toggle('selected');
+        });
+        container.appendChild(div);
+      });
+    }
+
+    // Render selected nominees
+    function renderSelectedNominees() {
+      const container = document.getElementById('selectedNominees');
+      container.innerHTML = '';
+      
+      selectedItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'list-group-item nominee-item';
+        div.dataset.id = item.nominee_id;
+        div.innerHTML = `
+          <div class="d-flex align-items-center">
+            <img src="/static/uploads/${item.image || 'default.jpg'}" 
+                 class="rounded me-3" width="50" height="50">
+            <div>
+              <h6 class="mb-0">${item.name}</h6>
+              ${nomineeType === 'song' ? `<small class="text-muted">${item.additional_info || ''}</small>` : ''}
+            </div>
+          </div>
+        `;
+        div.addEventListener('click', function() {
+          this.classList.toggle('selected');
+        });
+        container.appendChild(div);
+      });
+    }
+
+    // Add selected nominees
+    function addSelectedNominees() {
+      const selected = document.querySelectorAll('#availableNominees .selected');
+      
+      selected.forEach(item => {
+        const id = parseInt(item.dataset.id);
+        const foundItem = allItems.find(i => i.id === id);
+        
+        if (foundItem) {
+          selectedItems.push({
+            nominee_id: id,
+            name: foundItem.name || foundItem.title,
+            image: foundItem.image || foundItem.cover_image,
+            additional_info: nomineeType === 'song' ? foundItem.artist : ''
+          });
+        }
+      });
+      
+      renderAvailableNominees();
+      renderSelectedNominees();
+    }
+
+    // Remove selected nominees
+    function removeSelectedNominees() {
+      const selected = document.querySelectorAll('#selectedNominees .selected');
+      const idsToRemove = Array.from(selected).map(item => parseInt(item.dataset.id));
+      
+      selectedItems = selectedItems.filter(item => !idsToRemove.includes(item.nominee_id));
+      renderAvailableNominees();
+      renderSelectedNominees();
+    }
+
+    // Save nominees to server
+    function saveNominees() {
+      if (selectedItems.length === 0) {
+        alert('Please select at least one nominee');
+        return;
+      }
+      
+      if (selectedItems.length > 5) {
+        alert('Maximum of 5 nominees allowed');
+        return;
+      }
+      
+      fetch(`/admin/save_nominees/${currentEventId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nominees: selectedItems,
+          nominee_type: nomineeType
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Nominees saved successfully!');
+        } else {
+          alert('Error saving nominees: ' + data.message);
+        }
+      });
+    }
+
+    // Create new event
+    function createEvent(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('eventTitle').value;
+      const category = document.getElementById('eventCategory').value;
+      const endDate = document.getElementById('eventEndDate').value;
+      
+      fetch('/admin/create_voting_event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title,
+          category: category,
+          end_date: endDate
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Event created successfully!');
+          document.getElementById('createEventForm').reset();
+          // Redirect to nominees tab
+          loadNomineesTab(data.event_id);
+        } else {
+          alert('Error creating event: ' + data.message);
+        }
+      });
+      
+      return false;
+    }
+
+    // Activate event
+    function activateEvent(eventId) {
+      fetch(`/admin/activate_event/${eventId}`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Event activated!');
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          alert('Error activating event: ' + data.message);
+        }
+      });
+    }
+
+    // Deactivate event
+    function deactivateEvent(eventId) {
+      fetch(`/admin/deactivate_event/${eventId}`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showSuccess('Event deactivated!');
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          alert('Error deactivating event: ' + data.message);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

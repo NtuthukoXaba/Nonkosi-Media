@@ -22,6 +22,39 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# --- Models ---
+class VoteEvent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)  # e.g. "Song of the Month - June 2025"
+    category = db.Column(db.String(50), nullable=False)  # 'song', 'artist', 'song_of_year', 'artist_of_year'
+    start_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    end_date = db.Column(db.DateTime, nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    options = db.relationship('VoteOption', backref='vote_event', lazy=True, cascade='all, delete-orphan')
+    votes = db.relationship('VoteRecord', backref='vote_event', lazy=True, cascade='all, delete-orphan')
+
+class VoteOption(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    vote_event_id = db.Column(db.Integer, db.ForeignKey('vote_event.id'), nullable=False)
+    song_id = db.Column(db.Integer, db.ForeignKey('song.id'))  # For song-related votes
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))  # For artist-related votes
+    vote_count = db.Column(db.Integer, default=0)
+    
+    # Relationships
+    song = db.relationship('Song', backref='vote_options')
+    artist = db.relationship('Artist', backref='vote_options')
+
+class VoteRecord(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    vote_event_id = db.Column(db.Integer, db.ForeignKey('vote_event.id'), nullable=False)
+    option_id = db.Column(db.Integer, db.ForeignKey('vote_option.id'), nullable=False)
+    ip_address = db.Column(db.String(50), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    option = db.relationship('VoteOption', backref='votes')
+
+# ... (rest of your existing models and routes)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -461,6 +494,112 @@ def charts():
     return render_template('charts.html', 
                          top_songs=top_songs,
                          current_date=current_date)
+
+# --- Voting Event Routes ---
+@app.route('/admin/voting_events')
+@login_required
+def voting_events():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    events = VoteEvent.query.order_by(VoteEvent.start_date.desc()).all()
+    return render_template('voting_events.html', events=events)
+
+@app.route('/admin/create_voting_event', methods=['GET', 'POST'])
+@login_required
+def create_voting_event():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        try:
+            title = request.form.get('title')
+            category = request.form.get('category')
+            end_date_str = request.form.get('end_date')
+            
+            # Convert string to datetime
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M')
+            
+            new_event = VoteEvent(
+                title=title,
+                category=category,
+                end_date=end_date
+            )
+            
+            db.session.add(new_event)
+            db.session.commit()
+            
+            flash('Voting event created successfully!', 'success')
+            return redirect(url_for('voting_events'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating event: {str(e)}', 'error')
+    
+    return render_template('create_voting_event.html')
+
+@app.route('/admin/add_options/<int:event_id>', methods=['GET', 'POST'])
+@login_required
+def add_voting_options(event_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    event = VoteEvent.query.get_or_404(event_id)
+    
+    if request.method == 'POST':
+        try:
+            # For song voting
+            if event.category in ['song', 'song_of_year']:
+                song_ids = request.form.getlist('song_options')
+                for song_id in song_ids:
+                    option = VoteOption(
+                        vote_event_id=event.id,
+                        song_id=song_id
+                    )
+                    db.session.add(option)
+            
+            # For artist voting
+            elif event.category in ['artist', 'artist_of_year']:
+                artist_ids = request.form.getlist('artist_options')
+                for artist_id in artist_ids:
+                    option = VoteOption(
+                        vote_event_id=event.id,
+                        artist_id=artist_id
+                    )
+                    db.session.add(option)
+            
+            db.session.commit()
+            flash('Options added successfully!', 'success')
+            return redirect(url_for('voting_events'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding options: {str(e)}', 'error')
+    
+    # Get appropriate options based on category
+    if event.category in ['song', 'song_of_year']:
+        options = Song.query.order_by(Song.title).all()
+        return render_template('add_song_options.html', event=event, options=options)
+    else:
+        options = Artist.query.order_by(Artist.name).all()
+        return render_template('add_artist_options.html', event=event, options=options)
+
+@app.route('/admin/close_event/<int:event_id>')
+@login_required
+def close_voting_event(event_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to perform this action', 'error')
+        return redirect(url_for('home'))
+    
+    event = VoteEvent.query.get_or_404(event_id)
+    event.is_active = False
+    db.session.commit()
+    
+    flash('Voting event closed successfully', 'success')
+    return redirect(url_for('voting_events'))
 
 # --- DB init ---
 def create_database():

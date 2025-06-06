@@ -1,0 +1,56 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Add Song Options: {{ event.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('add_voting_options', event_id=event.id) }}">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="40px">Select</th>
+                                        <th>Song</th>
+                                        <th>Artist</th>
+                                        <th>Album</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for song in options %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="song_options" value="{{ song.id }}">
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ url_for('static', filename='uploads/' + song.cover_image) }}" 
+                                                     alt="{{ song.title }}" width="40" height="40" class="rounded me-3">
+                                                {{ song.title }}
+                                            </div>
+                                        </td>
+                                        <td>{{ song.artist.name }}</td>
+                                        <td>{{ song.album or 'Single' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Add Selected Songs</button>
+                            <a href="{{ url_for('voting_events') }}" class="btn btn-outline-secondary">
+                                Back to Events
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
