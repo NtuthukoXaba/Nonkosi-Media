@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1>{{ event.title }}</h1>
+    
+    {% if event.is_active and datetime.utcnow() < event.end_date %}
+        <div class="alert alert-info mb-4">
+            Voting ends: {{ event.end_date.strftime('%B %d, %Y at %H:%M') }}
+        </div>
+    {% else %}
+        <div class="alert alert-secondary mb-4">
+            This voting event has ended
+        </div>
+    {% endif %}
+    
+    {% if winner %}
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Winner</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    {% if event.category in ['song', 'song_of_year'] %}
+                        <img src="{{ url_for('static', filename='uploads/' + winner.cover_image) }}" 
+                             alt="{{ winner.title }}" width="80" class="rounded me-4">
+                        <div>
+                            <h3>{{ winner.title }}</h3>
+                            <p class="mb-1">by {{ winner.artist.name }}</p>
+                            <p class="text-muted">{{ winner.votes_received }} votes</p>
+                        </div>
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/' + winner.image) }}" 
+                             alt="{{ winner.name }}" width="80" class="rounded me-4">
+                        <div>
+                            <h3>{{ winner.name }}</h3>
+                            <p class="text-muted">{{ winner.votes_received }} votes</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    <h3 class="mb-3">Options</h3>
+    
+    {% if event.is_active and datetime.utcnow() < event.end_date %}
+        {% if has_voted %}
+            <div class="alert alert-warning">
+                You have already voted in this event
+            </div>
+        {% else %}
+            <form method="POST" action="{{ url_for('submit_vote', event_id=event.id) }}">
+        {% endif %}
+    {% endif %}
+    
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for option in options %}
+        <div class="col">
+            <div class="card h-100">
+                {% if event.category in ['song', 'song_of_year'] %}
+                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + option.song.cover_image) }}" 
+                         class="card-img-top" alt="{{ option.song.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ option.song.title }}</h5>
+                        <p class="card-text">by {{ option.song.artist.name }}</p>
+                        {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
+                            <button type="submit" name="option_id" value="{{ option.id }}" 
+                                    class="btn btn-primary">
+                                Vote
+                            </button>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + option.artist.image) }}" 
+                         class="card-img-top" alt="{{ option.artist.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ option.artist.name }}</h5>
+                        <p class="card-text">{{ option.artist.bio[:100] }}...</p>
+                        {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
+                            <button type="submit" name="option_id" value="{{ option.id }}" 
+                                    class="btn btn-primary">
+                                Vote
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Voting Events</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h2 class="mb-3">Current Voting</h2>
+            {% if active_events %}
+                <div class="list-group">
+                    {% for event in active_events %}
+                    <a href="{{ url_for('view_voting_event', event_id=event.id) }}" 
+                       class="list-group-item list-group-item-action">
+                        <h5>{{ event.title }}</h5>
+                        <p>Ends: {{ event.end_date.strftime('%B %d, %Y') }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">No active voting events at this time</div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-6">
+            <h2 class="mb-3">Past Winners</h2>
+            {% if past_events %}
+                <div class="list-group">
+                    {% for event in past_events %}
+                    <a href="{{ url_for('view_voting_event', event_id=event.id) }}" 
+                       class="list-group-item list-group-item-action">
+                        <h5>{{ event.title }}</h5>
+                        <p>Ended: {{ event.end_date.strftime('%B %d, %Y') }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">No past voting events</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

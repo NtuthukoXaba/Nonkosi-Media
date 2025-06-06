@@ -5,6 +5,7 @@ from flask_login import UserMixin, LoginManager, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
+from flask import request
 
 # --- App setup ---
 app = Flask(__name__)
@@ -52,6 +53,16 @@ class VoteRecord(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
     option = db.relationship('VoteOption', backref='votes')
+
+class VoteResult(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    vote_event_id = db.Column(db.Integer, db.ForeignKey('vote_event.id'), nullable=False)
+    winner_id = db.Column(db.Integer, nullable=False)  # ID of winning song/artist
+    winner_type = db.Column(db.String(10), nullable=False)  # 'song' or 'artist'
+    votes_received = db.Column(db.Integer, nullable=False)
+    date_announced = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    vote_event = db.relationship('VoteEvent', backref='results')
 
 # ... (rest of your existing models and routes)
 
@@ -142,6 +153,10 @@ class ContactMessage(db.Model):
     subject = db.Column(db.String(200), nullable=False)
     message = db.Column(db.Text, nullable=False)
     date_sent = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+@app.context_processor
+def inject_datetime():
+    return {'datetime': datetime}
 
 # --- Routes ---
 @app.route('/')
@@ -599,6 +614,137 @@ def close_voting_event(event_id):
     db.session.commit()
     
     flash('Voting event closed successfully', 'success')
+    return redirect(url_for('voting_events'))
+
+@app.route('/vote')
+def vote_home():
+    # Get active and past voting events
+    active_events = VoteEvent.query.filter(
+        VoteEvent.is_active == True,
+        VoteEvent.end_date > datetime.utcnow()
+    ).all()
+    
+    past_events = VoteEvent.query.filter(
+        (VoteEvent.is_active == False) | 
+        (VoteEvent.end_date <= datetime.utcnow())
+    ).order_by(VoteEvent.end_date.desc()).all()
+    
+    return render_template('vote_home.html', 
+                         active_events=active_events,
+                         past_events=past_events)
+
+@app.route('/vote/event/<int:event_id>')
+def view_voting_event(event_id):
+    event = VoteEvent.query.get_or_404(event_id)
+    options = VoteOption.query.filter_by(vote_event_id=event_id).all()
+    
+    # Check if user has already voted (by IP)
+    ip_address = request.remote_addr
+    has_voted = VoteRecord.query.filter_by(
+        vote_event_id=event_id,
+        ip_address=ip_address
+    ).first() is not None
+    
+    # For past events, get the winner
+    winner = None
+    if not event.is_active or datetime.utcnow() > event.end_date:
+        result = VoteResult.query.filter_by(vote_event_id=event.id).first()
+        if result:
+            if event.category in ['song', 'song_of_year']:
+                winner = Song.query.get(result.winner_id)
+            else:
+                winner = Artist.query.get(result.winner_id)
+    
+    return render_template('view_event.html',
+                         event=event,
+                         options=options,
+                         has_voted=has_voted,
+                         winner=winner)
+
+@app.route('/vote/submit/<int:event_id>', methods=['POST'])
+def submit_vote(event_id):
+    event = VoteEvent.query.get_or_404(event_id)
+    option_id = request.form.get('option_id')
+    
+    # Validate event is active
+    if not event.is_active or datetime.utcnow() > event.end_date:
+        flash('This voting event is no longer active', 'error')
+        return redirect(url_for('view_voting_event', event_id=event_id))
+    
+    # Check IP hasn't voted already
+    ip_address = request.remote_addr
+    existing_vote = VoteRecord.query.filter_by(
+        vote_event_id=event_id,
+        ip_address=ip_address
+    ).first()
+    
+    if existing_vote:
+        flash('You have already voted in this event', 'error')
+        return redirect(url_for('view_voting_event', event_id=event_id))
+    
+    # Record the vote
+    try:
+        # Update vote count
+        option = VoteOption.query.get(option_id)
+        option.vote_count += 1
+        db.session.add(option)
+        
+        # Record the vote
+        new_vote = VoteRecord(
+            vote_event_id=event_id,
+            option_id=option_id,
+            ip_address=ip_address
+        )
+        db.session.add(new_vote)
+        
+        db.session.commit()
+        flash('Your vote has been recorded!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while recording your vote', 'error')
+    
+    return redirect(url_for('view_voting_event', event_id=event_id))
+
+@app.route('/admin/announce_winner/<int:event_id>')
+@login_required
+def announce_winner(event_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to perform this action', 'error')
+        return redirect(url_for('home'))
+    
+    event = VoteEvent.query.get_or_404(event_id)
+    
+    # Find the option with most votes
+    winner_option = VoteOption.query.filter_by(vote_event_id=event_id)\
+                                 .order_by(VoteOption.vote_count.desc())\
+                                 .first()
+    
+    if not winner_option:
+        flash('No votes have been cast for this event', 'error')
+        return redirect(url_for('voting_events'))
+    
+    # Record the winner
+    winner_type = 'song' if event.category in ['song', 'song_of_year'] else 'artist'
+    winner_id = winner_option.song_id if winner_type == 'song' else winner_option.artist_id
+    
+    result = VoteResult(
+        vote_event_id=event_id,
+        winner_id=winner_id,
+        winner_type=winner_type,
+        votes_received=winner_option.vote_count
+    )
+    
+    # Close the event
+    event.is_active = False
+    
+    try:
+        db.session.add(result)
+        db.session.commit()
+        flash('Winner announced successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error announcing winner: {str(e)}', 'error')
+    
     return redirect(url_for('voting_events'))
 
 # --- DB init ---

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Nonkosi Media - Celebrating Maskandi Music{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Ubuntu', sans-serif;
+      background-color: #f5f5f5;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 0 20px;
+    }
+
+    .site-header {
+      background-color: #0b3c5d;
+      color: white;
+      padding: 10px 0;
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #f22e3e;
+    }
+
+    .main-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .main-nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .main-nav a:hover {
+      color: #f22e3e;
+    }
+
+    .lang-toggle {
+      margin-left: auto;
+    }
+
+    .btn {
+      background-color: #f22e3e;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 8px;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #d91b2a;
+      color: white;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid #f22e3e;
+      color: #f22e3e;
+    }
+
+    .btn-outline:hover {
+      background-color: #f22e3e;
+      color: white;
+    }
+
+    .hero {
+      background-color: #103b6f;
+      color: white;
+      padding: 60px 0;
+    }
+
+    .hero-text h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    .content-section {
+      padding: 40px 0;
+      background-color: #ffffff;
+    }
+
+    .card {
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-img-top {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .card-title {
+      color: #0b3c5d;
+      font-weight: bold;
+    }
+
+    .site-footer {
+      background-color: #0b3c5d;
+      color: white;
+      text-align: center;
+      padding: 30px 0;
+      margin-top: 60px;
+    }
+
+    .alert {
+      border-radius: 8px;
+    }
+
+    /* Voting specific styles */
+    .voting-card {
+      border-left: 5px solid #0b3c5d;
+      margin-bottom: 20px;
+    }
+
+    .winner-card {
+      border-left: 5px solid #28a745;
+    }
+
+    .voting-option {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .voting-option:hover {
+      background-color: #f8f9fa;
+    }
+
+    @media (max-width: 768px) {
+      .hero .container {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .main-nav {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .lang-toggle {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container">
+    <div class="logo">NONKOSI MEDIA</div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="#">News</a>
+      <a href="#">New Music Alert</a>
+      <a href="/charts">Charts</a>
+      <a href="#">Artists</a>
+      <a href="/vote">Vote</a>
+      <div class="lang-toggle">
+        <a href="#">EN</a> | <a href="#">ZU</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container mt-4">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <p>
+      <a href="/login" style="color: inherit; text-decoration: none;">
+        © 2025 Nonkosi Media. All rights reserved.
+      </a>
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
