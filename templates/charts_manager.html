@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Charts Manager - Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    .header {
+      background-color: #0b3c5d;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #f22e3e;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+    }
+
+    .container {
+      padding: 30px 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #0b3c5d;
+      margin-bottom: 20px;
+    }
+
+    .charts-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .available-songs {
+      flex: 1;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .top-chart {
+      flex: 2;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .song-list {
+      min-height: 200px;
+      border: 2px dashed #ccc;
+      padding: 10px;
+      margin-top: 15px;
+    }
+
+    .song-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      cursor: move;
+    }
+
+    .song-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      margin-right: 15px;
+      border-radius: 4px;
+    }
+
+    .song-info {
+      flex: 1;
+    }
+
+    .song-info h3 {
+      margin: 0 0 5px 0;
+      font-size: 1em;
+    }
+
+    .song-info p {
+      margin: 0;
+      font-size: 0.85em;
+      color: #666;
+    }
+
+    .chart-position {
+      font-weight: bold;
+      margin-right: 15px;
+      color: #0b3c5d;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .chart-actions {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-left: 10px;
+    }
+
+    .btn-primary {
+      background-color: #f22e3e;
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #0b3c5d;
+      color: white;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: #0b3c5d;
+      border-bottom: 2px solid #f22e3e;
+      padding-bottom: 5px;
+    }
+
+    .empty-message {
+      color: #999;
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+    }
+
+    .song-type {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7em;
+      background: #e1e1e1;
+      color: #333;
+    }
+
+    .song-type.album {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .song-type.single {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 600px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 20px;
+      top: 10px;
+    }
+    
+    .close:hover {
+      color: black;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="url"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    /* Add song button */
+    .add-song-btn {
+      margin-bottom: 15px;
+      background-color: #0b3c5d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    /* Song actions */
+    .song-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 5px;
+    }
+    
+    .song-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      font-size: 0.9em;
+    }
+    
+    .song-actions button:hover {
+      color: #0b3c5d;
+    }
+
+    .flex-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .artist-select-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .artist-select-container select {
+      flex: 1;
+    }
+
+    .artist-select-container button {
+      width: auto;
+      padding: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">Nonkosi Media</div>
+    <nav class="nav-links">
+      <a href="/admin">Dashboard</a>
+     
+     
+      <a href="/admin/charts_manager">Charts Manager</a>
+     
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Maskandi Top 20 Charts Manager</h1>
+    
+    <div class="charts-container">
+      <div class="available-songs">
+        <div class="flex-header">
+          <h2 class="section-title">Available Songs</h2>
+          <button class="add-song-btn" id="addSongBtn">
+            <i class="fas fa-plus"></i> Add Song
+          </button>
+        </div>
+        <div class="song-list" id="available-songs">
+          {% for song in all_songs %}
+            {% if song not in top_songs %}
+            <div class="song-item" draggable="true" data-song-id="{{ song.id }}">
+              <span class="chart-position"></span>
+              <img src="{{ url_for('static', filename='uploads/' + song.cover_image) }}" alt="{{ song.title }}">
+              <div class="song-info">
+                <h3>{{ song.title }}</h3>
+                <p>{{ song.artist.name }}</p>
+                <span class="song-type {{ 'album' if song.album else 'single' }}">
+                  {{ song.album if song.album else 'Single' }}
+                </span>
+              </div>
+              <div class="song-actions">
+                <button class="edit-song" data-song-id="{{ song.id }}" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="delete-song" data-song-id="{{ song.id }}" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+          {% if not all_songs %}
+            <p class="empty-message">No songs available. Add songs first.</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="top-chart">
+        <h2 class="section-title">Top 20 Chart</h2>
+        <div class="song-list" id="top-chart">
+          {% for song in top_songs %}
+            <div class="song-item" draggable="true" data-song-id="{{ song.id }}">
+              <span class="chart-position">{{ song.chart_position }}</span>
+              <img src="{{ url_for('static', filename='uploads/' + song.cover_image) }}" alt="{{ song.title }}">
+              <div class="song-info">
+                <h3>{{ song.title }}</h3>
+                <p>{{ song.artist.name }}</p>
+                <span class="song-type {{ 'album' if song.album else 'single' }}">
+                  {{ song.album if song.album else 'Single' }}
+                </span>
+              </div>
+              <div class="song-actions">
+                <button class="edit-song" data-song-id="{{ song.id }}" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="delete-song" data-song-id="{{ song.id }}" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+          {% if not top_songs %}
+            <p class="empty-message">Drag songs here to add to the chart</p>
+          {% endif %}
+        </div>
+        
+        <div class="chart-actions">
+          <button class="btn btn-secondary" id="reset-chart">Reset Chart</button>
+          <button class="btn btn-primary" id="save-chart">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Song Form Modal -->
+  <div id="songModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Add New Song</h2>
+      <form id="songForm">
+        <input type="hidden" id="songId">
+        <div class="form-group">
+          <label for="title">Song Title *</label>
+          <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="artist_id">Artist *</label>
+          <div class="artist-select-container">
+            <select id="artist_select" required>
+              <option value="">Select artist</option>
+              {% for artist in artists %}
+              <option value="{{ artist.id }}">{{ artist.name }}</option>
+              {% endfor %}
+            </select>
+            <button type="button" id="newArtistBtn" class="btn btn-secondary">+ New</button>
+          </div>
+          <input type="hidden" id="artist_id" name="artist_id">
+        </div>
+        <div class="form-group">
+          <label for="genre">Genre *</label>
+          <input type="text" id="genre" name="genre" required>
+        </div>
+        <div class="form-group">
+          <label for="album">Album (leave empty for single)</label>
+          <input type="text" id="album" name="album">
+        </div>
+        <div class="form-group">
+          <label for="cover_image">Cover Image</label>
+          <input type="file" id="cover_image" name="cover_image" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label for="spotify_link">Spotify Link</label>
+          <input type="url" id="spotify_link" name="spotify_link">
+        </div>
+        <div class="form-group">
+          <label for="youtube_link">YouTube Link</label>
+          <input type="url" id="youtube_link" name="youtube_link">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Song</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Artist Form Modal -->
+  <div id="artistModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Add New Artist</h2>
+      <form id="artistForm">
+        <div class="form-group">
+          <label for="artist_name">Artist Name *</label>
+          <input type="text" id="artist_name" required>
+        </div>
+        <div class="form-group">
+          <label for="artist_bio">Bio</label>
+          <textarea id="artist_bio" rows="3"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancelArtistBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Artist</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <p id="confirmMessage">Are you sure you want to delete this song?</p>
+      <div class="modal-actions">
+        <button id="confirmCancel" class="btn btn-secondary">Cancel</button>
+        <button id="confirmDelete" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Song Management Elements
+      const songModal = document.getElementById('songModal');
+      const artistModal = document.getElementById('artistModal');
+      const confirmModal = document.getElementById('confirmModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const songForm = document.getElementById('songForm');
+      const artistForm = document.getElementById('artistForm');
+      const addSongBtn = document.getElementById('addSongBtn');
+      const newArtistBtn = document.getElementById('newArtistBtn');
+      const closeBtns = document.querySelectorAll('.close, #cancelBtn');
+      const artistCloseBtns = document.querySelectorAll('#artistModal .close, #cancelArtistBtn');
+      const confirmCancel = document.getElementById('confirmCancel');
+      const confirmDelete = document.getElementById('confirmDelete');
+      
+      // Form fields
+      const songIdField = document.getElementById('songId');
+      const titleField = document.getElementById('title');
+      const artistSelect = document.getElementById('artist_select');
+      const artistIdField = document.getElementById('artist_id');
+      const genreField = document.getElementById('genre');
+      const albumField = document.getElementById('album');
+      const coverImageField = document.getElementById('cover_image');
+      const spotifyField = document.getElementById('spotify_link');
+      const youtubeField = document.getElementById('youtube_link');
+      const artistNameField = document.getElementById('artist_name');
+      const artistBioField = document.getElementById('artist_bio');
+      
+      // Current song to delete
+      let songToDelete = null;
+      
+      // Open add song modal
+      addSongBtn.addEventListener('click', () => {
+        loadArtists();
+        modalTitle.textContent = 'Add New Song';
+        songForm.reset();
+        songIdField.value = '';
+        songModal.style.display = 'block';
+      });
+      
+      // Close modals
+      closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          songModal.style.display = 'none';
+        });
+      });
+
+      // Close artist modal
+      artistCloseBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          artistModal.style.display = 'none';
+          songModal.style.display = 'block';
+        });
+      });
+      
+      // Close confirm modal
+      confirmCancel.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+      });
+
+      // New artist button
+      newArtistBtn.addEventListener('click', () => {
+        songModal.style.display = 'none';
+        artistModal.style.display = 'block';
+        artistForm.reset();
+      });
+      
+      // Handle edit buttons
+      document.querySelectorAll('.edit-song').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const songId = this.dataset.songId;
+          fetch(`/song/${songId}`)
+            .then(response => {
+              if (!response.ok) throw new Error('Failed to fetch song');
+                            return response.json();
+            })
+            .then(song => {
+              loadArtists().then(() => {
+                modalTitle.textContent = 'Edit Song';
+                songIdField.value = song.id;
+                titleField.value = song.title;
+                artistSelect.value = song.artist_id;
+                artistIdField.value = song.artist_id;
+                genreField.value = song.genre;
+                albumField.value = song.album || '';
+                spotifyField.value = song.spotify_link || '';
+                youtubeField.value = song.youtube_link || '';
+                songModal.style.display = 'block';
+              });
+            })
+            .catch(error => {
+              alert('Error loading song: ' + error.message);
+            });
+        });
+      });
+      
+      // Handle delete buttons
+      document.querySelectorAll('.delete-song').forEach(btn => {
+        btn.addEventListener('click', function() {
+          songToDelete = this.dataset.songId;
+          confirmModal.style.display = 'block';
+        });
+      });
+      
+      // Confirm delete
+      confirmDelete.addEventListener('click', () => {
+        if (songToDelete) {
+          fetch(`/admin/delete_song/${songToDelete}`, {
+            method: 'DELETE'
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert('Error: ' + data.message);
+            }
+          })
+          .catch(error => {
+            alert('Error deleting song: ' + error.message);
+          });
+        }
+        confirmModal.style.display = 'none';
+      });
+      
+      // Handle song form submission
+      songForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        formData.append('title', titleField.value);
+        formData.append('artist_id', artistIdField.value);
+        formData.append('genre', genreField.value);
+        formData.append('album', albumField.value);
+        if (coverImageField.files[0]) {
+          formData.append('cover_image', coverImageField.files[0]);
+        }
+        formData.append('spotify_link', spotifyField.value);
+        formData.append('youtube_link', youtubeField.value);
+        
+        const url = songIdField.value 
+          ? `/admin/edit_song/${songIdField.value}`
+          : '/admin/add_song';
+        
+        fetch(url, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            window.location.reload();
+          } else {
+            alert('Error: ' + data.message);
+          }
+        })
+        .catch(error => {
+          alert('Error saving song: ' + error.message);
+        });
+      });
+
+      // Handle artist form submission
+      artistForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        fetch('/api/artists', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: artistNameField.value,
+            bio: artistBioField.value
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Add new artist to select
+            const option = document.createElement('option');
+            option.value = data.artist.id;
+            option.textContent = data.artist.name;
+            option.selected = true;
+            artistSelect.appendChild(option);
+            
+            // Set the hidden artist_id field
+            artistIdField.value = data.artist.id;
+            
+            // Close artist modal and reopen song modal
+            artistModal.style.display = 'none';
+            songModal.style.display = 'block';
+            
+            // Clear form
+            artistForm.reset();
+          } else {
+            alert('Error: ' + data.message);
+          }
+        });
+      });
+
+      // When artist select changes, update hidden field
+      artistSelect.addEventListener('change', function() {
+        artistIdField.value = this.value;
+      });
+
+      // Load artists for select
+      function loadArtists() {
+        return fetch('/api/artists')
+          .then(response => response.json())
+          .then(artists => {
+            artistSelect.innerHTML = '<option value="">Select artist</option>';
+            artists.forEach(artist => {
+              const option = document.createElement('option');
+              option.value = artist.id;
+              option.textContent = artist.name;
+              artistSelect.appendChild(option);
+            });
+          });
+      }
+
+      // Drag and Drop Chart Management
+      const availableSongs = document.getElementById('available-songs');
+      const topChart = document.getElementById('top-chart');
+      const saveBtn = document.getElementById('save-chart');
+      const resetBtn = document.getElementById('reset-chart');
+      
+      let draggedItem = null;
+
+      // Make songs draggable
+      document.querySelectorAll('.song-item').forEach(item => {
+        item.addEventListener('dragstart', dragStart);
+      });
+
+      // Set up drop zones
+      [availableSongs, topChart].forEach(zone => {
+        zone.addEventListener('dragover', dragOver);
+        zone.addEventListener('drop', drop);
+      });
+
+      // Save chart button
+      saveBtn.addEventListener('click', saveChart);
+      
+      // Reset chart button
+      resetBtn.addEventListener('click', resetChart);
+
+      function dragStart(e) {
+        draggedItem = this;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+      }
+
+      function dragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }
+
+      function drop(e) {
+        e.preventDefault();
+        if (draggedItem) {
+          // Remove from previous position
+          draggedItem.parentNode.removeChild(draggedItem);
+          
+          // Add to new position
+          this.appendChild(draggedItem);
+          
+          // Update positions in the chart
+          updateChartPositions();
+        }
+      }
+
+      function updateChartPositions() {
+        const chartItems = topChart.querySelectorAll('.song-item');
+        chartItems.forEach((item, index) => {
+          const positionElement = item.querySelector('.chart-position');
+          if (positionElement) {
+            positionElement.textContent = index + 1;
+          } else {
+            // Create position element if it doesn't exist
+            const posSpan = document.createElement('span');
+            posSpan.className = 'chart-position';
+            posSpan.textContent = index + 1;
+            item.insertBefore(posSpan, item.firstChild);
+          }
+        });
+      }
+
+      function saveChart() {
+        const chartItems = topChart.querySelectorAll('.song-item');
+        if (chartItems.length > 20) {
+          alert('You can only have 20 songs in the chart!');
+          return;
+        }
+
+        const chartData = Array.from(chartItems).map((item, index) => ({
+          song_id: parseInt(item.dataset.songId),
+          position: index + 1
+        }));
+
+        fetch('/admin/update_charts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(chartData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert('Chart updated successfully!');
+            window.location.reload();
+          } else {
+            alert('Error: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while saving the chart');
+        });
+      }
+
+      function resetChart() {
+        if (confirm('Are you sure you want to reset the chart? This will remove all songs from the top 20.')) {
+          fetch('/admin/update_charts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify([])
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.reload();
+            } else {
+              alert('Error: ' + data.message);
+            }
+          });
+        }
+      }
+
+      // Close modals when clicking outside
+      window.addEventListener('click', (e) => {
+        if (e.target === songModal) {
+          songModal.style.display = 'none';
+        }
+        if (e.target === artistModal) {
+          artistModal.style.display = 'none';
+        }
+        if (e.target === confirmModal) {
+          confirmModal.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

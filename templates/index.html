@@ -212,7 +212,7 @@
       <a href="#">Home</a>
       <a href="#">News</a>
       <a href="#">New Music Alert</a>
-      <a href="#">Charts</a>
+      <a href="/charts">Charts</a>
       <a href="#">Artists</a>
       <a href="#">Vote</a>
       <div class="lang-toggle">
@@ -267,10 +267,11 @@
   <div class="container">
     <h2>Top 20 Maskandi</h2>
     <ol class="chart-list">
-      <li><strong>Mzukulu</strong> – Hit Song</li>
-      <li><strong>Shwi</strong> – Classic Vibe</li>
-      <li><strong>Khuzani</strong> – New Age Maskandi</li>
+      {% for song in top_3 %}
+      <li><strong>{{ song.artist.name }}</strong> - {{ song.title }}</li>
+      {% endfor %}
     </ol>
+    <a href="/charts" class="btn">View Full Chart</a>
   </div>
 </section>
 

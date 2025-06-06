@@ -71,6 +71,7 @@ class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     genre = db.Column(db.String(50), nullable=False)
+    album = db.Column(db.String(100))  # New field - can be null for singles
     release_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     cover_image = db.Column(db.String(20), nullable=False)
     spotify_link = db.Column(db.String(200))
@@ -112,7 +113,13 @@ class ContactMessage(db.Model):
 # --- Routes ---
 @app.route('/')
 def home():
-    return render_template('index.html')
+    # Get top 3 songs for the home page
+    top_3 = Song.query.filter(Song.chart_position != None)\
+                     .order_by(Song.chart_position)\
+                     .limit(3)\
+                     .all()
+    
+    return render_template('index.html', top_3=top_3)
 
 @app.route('/admin')
 @login_required
@@ -282,7 +289,178 @@ def delete_journalist(journalist_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
+    
+@app.route('/admin/charts_manager')
+@login_required
+def charts_manager():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    all_songs = Song.query.order_by(Song.title).all()
+    top_songs = Song.query.filter(Song.chart_position != None)\
+                        .order_by(Song.chart_position)\
+                        .limit(20)\
+                        .all()
+    artists = Artist.query.order_by(Artist.name).all()
+    
+    return render_template('charts_manager.html', 
+                         all_songs=all_songs,
+                         top_songs=top_songs,
+                         artists=artists)
 
+@app.route('/admin/update_charts', methods=['POST'])
+@login_required
+def update_charts():
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    try:
+        # Clear all current chart positions
+        db.session.query(Song).update({Song.chart_position: None})
+        
+        # Update with new positions from the request
+        chart_data = request.get_json()
+        for item in chart_data:
+            song = Song.query.get(item['song_id'])
+            if song:
+                song.chart_position = item['position']
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Chart updated successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+    
+@app.route('/admin/add_song', methods=['POST'])
+@login_required
+def add_song():
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    try:
+        title = request.form.get('title')
+        artist_id = request.form.get('artist_id')
+        genre = request.form.get('genre')
+        album = request.form.get('album')
+        
+        # Validation
+        if not all([title, artist_id, genre]):
+            return jsonify({'success': False, 'message': 'Title, Artist and Genre are required'}), 400
+        
+        # Handle file upload
+        cover_image = 'default_song.jpg'  # Default image
+        if 'cover_image' in request.files:
+            file = request.files['cover_image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(f"song_{title}_{file.filename}")
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                cover_image = filename
+        
+        new_song = Song(
+            title=title,
+            artist_id=artist_id,
+            genre=genre,
+            album=album if album else None,
+            cover_image=cover_image,
+            spotify_link=request.form.get('spotify_link'),
+            youtube_link=request.form.get('youtube_link')
+        )
+        
+        db.session.add(new_song)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Song added successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/admin/edit_song/<int:song_id>', methods=['POST'])
+@login_required
+def edit_song(song_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    song = Song.query.get_or_404(song_id)
+    
+    try:
+        song.title = request.form.get('title')
+        song.artist_id = request.form.get('artist_id')
+        song.genre = request.form.get('genre')
+        song.album = request.form.get('album')
+        song.spotify_link = request.form.get('spotify_link')
+        song.youtube_link = request.form.get('youtube_link')
+        
+        # Handle file upload
+        if 'cover_image' in request.files:
+            file = request.files['cover_image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(f"song_{song.title}_{file.filename}")
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                song.cover_image = filename
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Song updated successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/admin/delete_song/<int:song_id>', methods=['DELETE'])
+@login_required
+def delete_song(song_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    song = Song.query.get_or_404(song_id)
+    
+    try:
+        db.session.delete(song)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Song deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+    
+@app.route('/api/artists', methods=['GET'])
+def get_artists():
+    artists = Artist.query.order_by(Artist.name).all()
+    return jsonify([{'id': a.id, 'name': a.name} for a in artists])
+
+@app.route('/api/artists', methods=['POST'])
+@login_required
+def create_artist():
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    data = request.get_json()
+    if not data or 'name' not in data:
+        return jsonify({'success': False, 'message': 'Artist name required'}), 400
+    
+    try:
+        new_artist = Artist(
+            name=data['name'],
+            bio=data.get('bio', ''),
+            image='artist_default.jpg'
+        )
+        db.session.add(new_artist)
+        db.session.commit()
+        return jsonify({'success': True, 'artist': {'id': new_artist.id, 'name': new_artist.name}})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+@app.route('/charts')
+def charts():
+    # Get current top 20 songs ordered by chart position
+    top_songs = Song.query.filter(Song.chart_position != None)\
+                        .order_by(Song.chart_position)\
+                        .limit(20)\
+                        .all()
+    
+    # Format the current date
+    current_date = datetime.now().strftime('%B %d, %Y')
+    
+    return render_template('charts.html', 
+                         top_songs=top_songs,
+                         current_date=current_date)
 
 # --- DB init ---
 def create_database():

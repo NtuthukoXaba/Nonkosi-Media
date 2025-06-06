@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top 20 Maskandi Charts - Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      margin: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    
+    .header {
+      background-color: #0b3c5d;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #f22e3e;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+    }
+    
+    .container {
+      padding: 30px 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    
+    h1 {
+      color: #0b3c5d;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .chart-list {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    
+    .chart-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .chart-position {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #0b3c5d;
+      min-width: 40px;
+      text-align: center;
+    }
+    
+    .chart-info {
+      flex: 1;
+      margin-left: 20px;
+    }
+    
+    .chart-info h3 {
+      margin: 0 0 5px 0;
+    }
+    
+    .chart-info p {
+      margin: 0;
+      color: #666;
+    }
+    
+    .chart-cover {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .chart-title {
+      font-size: 1.8em;
+      color: #0b3c5d;
+    }
+    
+    .chart-date {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">Nonkosi Media</div>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+      <a href="/charts">Charts</a>
+      <a href="#">Artists</a>
+      <a href="#">News</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="chart-header">
+      <h1 class="chart-title">Maskandi Top 20</h1>
+      <div class="chart-date">{{ current_date }}</div>
+    </div>
+    
+    <div class="chart-list">
+      {% for song in top_songs %}
+      <div class="chart-item">
+        <div class="chart-position">{{ song.chart_position }}</div>
+        <img src="{{ url_for('static', filename='uploads/' + song.cover_image) }}" 
+             alt="{{ song.title }}" class="chart-cover">
+        <div class="chart-info">
+          <h3>{{ song.title }}</h3>
+          <p>{{ song.artist.name }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+
+</body>
+</html>
