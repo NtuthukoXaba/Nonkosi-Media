@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ artist.name }} | Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #0b3c5d;
+      --secondary-color: #f22e3e;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --gray-color: #6c757d;
+    }
+    
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--dark-color);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Back Link */
+    .back-link {
+      display: inline-block;
+      margin: 30px 0;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Artist Header */
+    .artist-header {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    
+    .artist-image {
+      flex: 0 0 300px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .artist-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .artist-info {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .artist-name {
+      font-size: 2.2rem;
+      margin: 0 0 10px;
+      color: var(--primary-color);
+    }
+    
+    .artist-bio {
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+    
+    /* Social Media */
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .social-link {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      text-decoration: none;
+    }
+    
+    /* Sections */
+    .section {
+      margin-bottom: 50px;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--secondary-color);
+      padding-bottom: 5px;
+    }
+    
+    /* Top Songs */
+    .song-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .song-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .song-item:hover {
+      background: #f9f9f9;
+    }
+    
+    .song-info {
+      flex: 1;
+    }
+    
+    .song-title {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .song-links {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .song-link {
+      display: inline-block;
+      padding: 5px 10px;
+      background: var(--secondary-color);
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    
+    /* Upcoming Gigs */
+    .gig-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .gig-item {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    
+    .gig-info {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .gig-venue {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .gig-date {
+      color: var(--gray-color);
+    }
+    
+    .gig-city {
+      background: var(--primary-color);
+      color: white;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .artist-header {
+        flex-direction: column;
+      }
+      
+      .artist-image {
+        flex: 0 0 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/artists" class="back-link">&larr; Back to Artists</a>
+    
+    <!-- Artist Header -->
+    <div class="artist-header">
+      <div class="artist-image">
+        <img src="{{ url_for('static', filename='uploads/profile_pics/' + artist.image) }}" 
+             alt="{{ artist.name }}">
+      </div>
+      <div class="artist-info">
+        <h1 class="artist-name">{{ artist.name }}</h1>
+        <div class="artist-bio">
+          {{ artist.bio }}
+        </div>
+        
+        <!-- Social Media Links -->
+        <div class="social-links">
+          {% if artist.social_media.facebook %}
+          <a href="{{ artist.social_media.facebook }}" class="social-link" target="_blank">f</a>
+          {% endif %}
+          {% if artist.social_media.twitter %}
+          <a href="{{ artist.social_media.twitter }}" class="social-link" target="_blank">t</a>
+          {% endif %}
+          {% if artist.social_media.instagram %}
+          <a href="{{ artist.social_media.instagram }}" class="social-link" target="_blank">i</a>
+          {% endif %}
+          {% if artist.social_media.youtube %}
+          <a href="{{ artist.social_media.youtube }}" class="social-link" target="_blank">y</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Top Songs Section -->
+    <div class="section">
+      <h2 class="section-title">Top Songs</h2>
+      <ul class="song-list">
+        {% for song in top_songs %}
+        <li class="song-item">
+          <div class="song-info">
+            <div class="song-title">{{ song.title }}</div>
+            {% if song.album %}
+            <div class="song-album">{{ song.album }}</div>
+            {% endif %}
+          </div>
+          <div class="song-links">
+            {% if song.spotify_link %}
+            <a href="{{ song.spotify_link }}" class="song-link" target="_blank">Spotify</a>
+            {% endif %}
+            {% if song.youtube_link %}
+            <a href="{{ song.youtube_link }}" class="song-link" target="_blank">YouTube</a>
+            {% endif %}
+          </div>
+        </li>
+        {% else %}
+        <li>No top songs available</li>
+        {% endfor %}
+      </ul>
+    </div>
+    
+    <!-- Upcoming Gigs Section -->
+    <div class="section">
+      <h2 class="section-title">Upcoming Performances</h2>
+      <ul class="gig-list">
+        {% for gig in upcoming_gigs %}
+        <li class="gig-item">
+          <div class="gig-info">
+            <div class="gig-venue">{{ gig.venue }}</div>
+            <div class="gig-date">{{ gig.date.strftime('%B %d, %Y') }}</div>
+          </div>
+          <div class="gig-city">{{ gig.city }}</div>
+        </li>
+        {% else %}
+        <li>No upcoming performances scheduled</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Include your existing footer here -->
+</body>
+</html>

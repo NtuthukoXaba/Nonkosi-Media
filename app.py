@@ -1338,6 +1338,57 @@ def view_article(article_id):
     
     return render_template('article_detail.html', article=article)
 
+@app.route('/artists')
+def artists():
+    # Get search query if exists
+    search_query = request.args.get('search', '')
+    
+    # Start with base query
+    query = Artist.query
+    
+    # Apply search filter if provided
+    if search_query:
+        query = query.filter(Artist.name.ilike(f'%{search_query}%'))
+    
+    # Get all artists (or filtered ones)
+    artists = query.order_by(Artist.name).all()
+    
+    return render_template('artists.html', artists=artists, search_query=search_query)
+
+@app.route('/artist/<int:artist_id>')
+def artist_detail(artist_id):
+    artist = Artist.query.get_or_404(artist_id)
+    
+    # Get artist's top songs (limit to 5 for the profile)
+    top_songs = Song.query.filter_by(artist_id=artist.id)\
+                         .order_by(Song.chart_position)\
+                         .limit(5)\
+                         .all()
+    
+    # Get upcoming gigs (only future events)
+    upcoming_gigs = Gig.query.filter(
+        Gig.artist_id == artist.id,
+        Gig.date >= datetime.utcnow()
+    ).order_by(Gig.date).all()
+    
+    return render_template('artist_detail.html', 
+                         artist=artist,
+                         top_songs=top_songs,
+                         upcoming_gigs=upcoming_gigs)
+
+@app.route('/new_music')
+def new_music():
+    # Get upcoming music releases (within the next 30 days)
+    today = datetime.utcnow()
+    future_date = today + timedelta(days=15)
+    
+    upcoming = UpcomingMusic.query.filter(
+        UpcomingMusic.release_date >= today,
+        UpcomingMusic.release_date <= future_date
+    ).order_by(UpcomingMusic.release_date).all()
+    
+    return render_template('new_music.html', upcoming_music=upcoming)
+
 # --- DB init ---
 def create_database():
     with app.app_context():
