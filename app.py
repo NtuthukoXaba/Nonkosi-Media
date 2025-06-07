@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 from flask import request
+from datetime import datetime, timedelta
 
 # --- App setup ---
 app = Flask(__name__)
@@ -158,6 +159,17 @@ class ContactMessage(db.Model):
     subject = db.Column(db.String(200), nullable=False)
     message = db.Column(db.Text, nullable=False)
     date_sent = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+class UpcomingMusic(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
+    album = db.Column(db.String(100))
+    release_date = db.Column(db.DateTime, nullable=False)
+    cover_image = db.Column(db.String(100), default='default_upcoming.jpg')
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    artist = db.relationship('Artist', backref='upcoming_music')
 
 @app.context_processor
 def inject_datetime():
@@ -1190,6 +1202,94 @@ def news_stats():
                          pending_articles=pending_articles,
                          top_articles=top_articles,
                          categories=categories)
+
+@app.route('/admin/upcoming_music')
+@login_required
+def upcoming_music():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    # Filter out music that was released more than 5 days ago
+    cutoff_date = datetime.utcnow() - timedelta(days=5)
+    upcoming = UpcomingMusic.query.filter(UpcomingMusic.release_date > cutoff_date)\
+                                .order_by(UpcomingMusic.release_date)\
+                                .all()
+    
+    return render_template('upcoming_music.html', upcoming_music=upcoming)
+
+@app.route('/admin/add_upcoming_music', methods=['GET', 'POST'])
+@login_required
+def add_upcoming_music():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        try:
+            title = request.form.get('title')
+            artist_id = request.form.get('artist_id')
+            album = request.form.get('album')
+            release_date_str = request.form.get('release_date')
+            
+            # Validation
+            if not all([title, artist_id, release_date_str]):
+                flash('Title, Artist and Release Date are required', 'error')
+                return redirect(url_for('add_upcoming_music'))
+            
+            # Convert string to datetime
+            release_date = datetime.strptime(release_date_str, '%Y-%m-%d')
+            
+            # Handle file upload
+            cover_image = 'default_upcoming.jpg'
+            if 'cover_image' in request.files:
+                file = request.files['cover_image']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(f"upcoming_{title}_{file.filename}")
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    cover_image = filename
+            
+            new_upcoming = UpcomingMusic(
+                title=title,
+                artist_id=artist_id,
+                album=album if album else None,
+                release_date=release_date,
+                cover_image=cover_image
+            )
+            
+            db.session.add(new_upcoming)
+            db.session.commit()
+            flash('Upcoming music added successfully!', 'success')
+            return redirect(url_for('upcoming_music'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding upcoming music: {str(e)}', 'error')
+    
+    artists = Artist.query.order_by(Artist.name).all()
+    return render_template('add_upcoming_music.html', artists=artists)
+@app.route('/admin/delete_upcoming_music/<int:music_id>', methods=['DELETE'])
+@login_required
+def delete_upcoming_music(music_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    music = UpcomingMusic.query.get_or_404(music_id)
+    
+    try:
+        # Delete the cover image file if it's not the default
+        if music.cover_image != 'default_upcoming.jpg':
+            try:
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], music.cover_image))
+            except:
+                pass  # If file doesn't exist, continue with deletion
+        
+        db.session.delete(music)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Upcoming music deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # --- DB init ---
 def create_database():

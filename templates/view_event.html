@@ -22,7 +22,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     {% if event.category in ['song', 'song_of_year'] %}
-                        <img src="{{ url_for('static', filename='uploads/' + winner.cover_image) }}" 
+                        <img src="{{ url_for('static', filename='uploads/profile_pics/' + winner.cover_image) }}" 
                              alt="{{ winner.title }}" width="80" class="rounded me-4">
                         <div>
                             <h3>{{ winner.title }}</h3>
@@ -30,7 +30,7 @@
                             <p class="text-muted">{{ winner.votes_received }} votes</p>
                         </div>
                     {% else %}
-                        <img src="{{ url_for('static', filename='uploads/' + winner.image) }}" 
+                        <img src="{{ url_for('static', filename='uploads/profile_pics/' + winner.image) }}" 
                              alt="{{ winner.name }}" width="80" class="rounded me-4">
                         <div>
                             <h3>{{ winner.name }}</h3>
