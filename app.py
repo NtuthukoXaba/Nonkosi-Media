@@ -1290,6 +1290,53 @@ def delete_upcoming_music(music_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
+    
+@app.route('/news')
+def view_news():
+    # Get filter parameters
+    category = request.args.get('category', '')
+    search_query = request.args.get('search', '')
+    
+    # Start with published news only
+    query = News.query.filter_by(is_published=True)
+    
+    # Apply category filter if provided
+    if category:
+        query = query.filter_by(category=category)
+    
+    # Apply search filter if provided
+    if search_query:
+        query = query.filter(
+            (News.title.ilike(f'%{search_query}%')) | 
+            (News.content.ilike(f'%{search_query}%'))
+        )
+    
+    # Order by date and paginate
+    news_articles = query.order_by(News.date_posted.desc()).all()
+    
+    # Get distinct categories for filter dropdown
+    categories = db.session.query(News.category.distinct()).filter_by(is_published=True).all()
+    categories = [c[0] for c in categories]
+    
+    return render_template('news.html', 
+                         news_articles=news_articles,
+                         categories=categories,
+                         current_category=category,
+                         search_query=search_query)
+
+@app.route('/news/<int:article_id>')
+def view_article(article_id):
+    article = News.query.get_or_404(article_id)
+    
+    # Only show published articles to public
+    if not article.is_published and (not current_user.is_authenticated or current_user.role not in ['admin', 'journalist']):
+        abort(404)
+    
+    # Increment view count
+    article.views += 1
+    db.session.commit()
+    
+    return render_template('article_detail.html', article=article)
 
 # --- DB init ---
 def create_database():

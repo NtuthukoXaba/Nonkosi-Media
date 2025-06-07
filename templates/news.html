@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maskandi News | Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #0b3c5d;
+      --secondary-color: #f22e3e;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --gray-color: #6c757d;
+    }
+    
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--dark-color);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    .news-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 60px 0 40px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .news-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+    
+    /* News Filter */
+    .news-filter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .category-filter {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .category-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: white;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .category-btn:hover, .category-btn.active {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .search-box {
+      position: relative;
+      min-width: 250px;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      border-radius: 30px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+    
+    .search-box::before {
+      content: "🔍";
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    /* News Grid */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+    
+    .news-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .news-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .news-image {
+      height: 220px;
+      overflow: hidden;
+    }
+    
+    .news-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .news-card:hover .news-image img {
+      transform: scale(1.05);
+    }
+    
+    .news-content {
+      padding: 20px;
+    }
+    
+    .news-category {
+      display: inline-block;
+      background: var(--secondary-color);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    
+    .news-title {
+      font-size: 1.4rem;
+      margin: 10px 0;
+      color: var(--primary-color);
+    }
+    
+    .news-excerpt {
+      color: var(--gray-color);
+      margin-bottom: 15px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .news-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      color: var(--gray-color);
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+    
+    .news-author {
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+    
+    .no-articles {
+      text-align: center;
+      grid-column: 1 / -1;
+      padding: 50px 0;
+      color: var(--gray-color);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .news-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .news-filter {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- News Header -->
+  <header class="news-header">
+    <div class="container">
+      <h1>Maskandi News</h1>
+      <p>Stay updated with the latest in Maskandi music, artists, and culture</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- News Filter -->
+    <div class="news-filter">
+      <div class="category-filter">
+        <a href="/news" class="category-btn {% if not current_category %}active{% endif %}">All News</a>
+        {% for category in categories %}
+        <a href="/news?category={{ category }}" 
+           class="category-btn {% if current_category == category %}active{% endif %}">
+          {{ category }}
+        </a>
+        {% endfor %}
+      </div>
+      
+      <div class="search-box">
+        <form action="/news" method="get">
+          <input type="text" name="search" placeholder="Search news..." 
+                 value="{{ search_query if search_query }}">
+        </form>
+      </div>
+    </div>
+
+    <!-- News Grid -->
+    <div class="news-grid">
+      {% if news_articles %}
+        {% for article in news_articles %}
+        <article class="news-card">
+          <a href="/news/{{ article.id }}" style="text-decoration: none; color: inherit;">
+            <div class="news-image">
+              <img src="{{ url_for('static', filename='uploads/profile_pics/' + article.image) }}" 
+                   alt="{{ article.title }}">
+            </div>
+            <div class="news-content">
+              <span class="news-category">{{ article.category }}</span>
+              <h3 class="news-title">{{ article.title }}</h3>
+              <p class="news-excerpt">{{ article.content|truncate(150) }}</p>
+              <div class="news-meta">
+                <span class="news-author">By {{ article.author.username }}</span>
+                <span>{{ article.date_posted.strftime('%b %d, %Y') }}</span>
+              </div>
+            </div>
+          </a>
+        </article>
+        {% endfor %}
+      {% else %}
+        <div class="no-articles">
+          <h3>No articles found</h3>
+          <p>Try a different search or category</p>
+          <a href="/news" class="category-btn">Show All News</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Include your existing footer here -->
+</body>
+</html>
