@@ -79,7 +79,7 @@ class User(db.Model, UserMixin):
     role = db.Column(db.String(20), nullable=False, default='user')
     profile_pic = db.Column(db.String(100), nullable=False, default='default.jpg')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    news_articles = db.relationship('News', backref='author', lazy=True)
+    articles = db.relationship('News', backref='author', lazy=True)  # This creates the relationship
 
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
@@ -128,9 +128,14 @@ class News(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(50), nullable=False)
-    image = db.Column(db.String(20), nullable=False)
+    image = db.Column(db.String(100), nullable=False, default='default_news.jpg')
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_published = db.Column(db.Boolean, default=False)
+    views = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # REMOVE THIS LINE - it's the duplicate relationship causing the conflict
+    # author = db.relationship('User', backref='news_articles')
 
 class Gig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -941,6 +946,250 @@ def delete_gig(gig_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
+    
+    # --- Journalist News Routes ---
+@app.route('/journalist/articles')
+@login_required
+def journalist_articles():
+    if current_user.role not in ['journalist', 'senior_journalist', 'junior_journalist']:
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    articles = News.query.filter_by(user_id=current_user.id).order_by(News.date_posted.desc()).all()
+    return render_template('journalist_articles.html', articles=articles)
+
+@app.route('/journalist/article/new', methods=['GET', 'POST'])
+@login_required
+def new_article():
+    if current_user.role not in ['journalist', 'senior_journalist', 'junior_journalist']:
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        try:
+            title = request.form.get('title')
+            content = request.form.get('content')
+            category = request.form.get('category')
+            
+            if not all([title, content, category]):
+                flash('All fields are required', 'error')
+                return redirect(url_for('new_article'))
+            
+            # Handle file upload
+            image = 'default_news.jpg'
+            if 'image' in request.files:
+                file = request.files['image']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(f"news_{datetime.now().timestamp()}_{file.filename}")
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    image = filename
+            
+            new_article = News(
+                title=title,
+                content=content,
+                category=category,
+                image=image,
+                user_id=current_user.id,
+                is_published=False  # Needs admin approval
+            )
+            
+            db.session.add(new_article)
+            db.session.commit()
+            flash('Article created successfully! Waiting for admin approval.', 'success')
+            return redirect(url_for('journalist_articles'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating article: {str(e)}', 'error')
+    
+    categories = ['Events', 'Releases', 'Interviews', 'Reviews', 'Culture']
+    return render_template('create_article.html', categories=categories)
+
+@app.route('/journalist/article/edit/<int:article_id>', methods=['GET', 'POST'])
+@login_required
+def edit_article(article_id):
+    article = News.query.get_or_404(article_id)
+    
+    # Check ownership
+    if article.user_id != current_user.id:
+        flash('You are not authorized to edit this article', 'error')
+        return redirect(url_for('journalist_articles'))
+    
+    if request.method == 'POST':
+        try:
+            article.title = request.form.get('title')
+            article.content = request.form.get('content')
+            article.category = request.form.get('category')
+            
+            # Handle file upload
+            if 'image' in request.files:
+                file = request.files['image']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(f"news_{datetime.now().timestamp()}_{file.filename}")
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    article.image = filename
+            
+            db.session.commit()
+            flash('Article updated successfully!', 'success')
+            return redirect(url_for('journalist_articles'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating article: {str(e)}', 'error')
+    
+    categories = ['Events', 'Releases', 'Interviews', 'Reviews', 'Culture']
+    return render_template('edit_article.html', article=article, categories=categories)
+
+@app.route('/journalist/article/delete/<int:article_id>', methods=['POST'])
+@login_required
+def delete_article(article_id):
+    article = News.query.get_or_404(article_id)
+    
+    # Check ownership
+    if article.user_id != current_user.id:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    try:
+        db.session.delete(article)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Article deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/journalist/article/preview/<int:article_id>')
+@login_required
+def preview_article(article_id):
+    article = News.query.get_or_404(article_id)
+    
+    # Check ownership
+    if article.user_id != current_user.id:
+        flash('You are not authorized to view this article', 'error')
+        return redirect(url_for('journalist_articles'))
+    
+    return render_template('article_preview.html', article=article)
+
+# --- Admin News Moderation Routes ---
+@app.route('/admin/news')
+@login_required
+def admin_news():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    # Get all news articles with author information
+    news_articles = db.session.query(News, User)\
+                            .join(User, News.user_id == User.id)\
+                            .order_by(News.date_posted.desc())\
+                            .all()
+    
+    return render_template('admin_news.html', news_articles=news_articles)
+
+@app.route('/admin/news/publish/<int:article_id>')
+@login_required
+def publish_article(article_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to perform this action', 'error')
+        return redirect(url_for('home'))
+    
+    article = News.query.get_or_404(article_id)
+    article.is_published = True
+    db.session.commit()
+    
+    flash('Article published successfully!', 'success')
+    return redirect(url_for('admin_news'))
+
+@app.route('/admin/news/unpublish/<int:article_id>')
+@login_required
+def unpublish_article(article_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to perform this action', 'error')
+        return redirect(url_for('home'))
+    
+    article = News.query.get_or_404(article_id)
+    article.is_published = False
+    db.session.commit()
+    
+    flash('Article unpublished successfully!', 'success')
+    return redirect(url_for('admin_news'))
+
+@app.route('/admin/news/edit/<int:article_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_article(article_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    article = News.query.get_or_404(article_id)
+    
+    if request.method == 'POST':
+        try:
+            article.title = request.form.get('title')
+            article.content = request.form.get('content')
+            article.category = request.form.get('category')
+            
+            # Handle file upload
+            if 'image' in request.files:
+                file = request.files['image']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(f"news_{datetime.now().timestamp()}_{file.filename}")
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    article.image = filename
+            
+            db.session.commit()
+            flash('Article updated successfully!', 'success')
+            return redirect(url_for('admin_news'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating article: {str(e)}', 'error')
+    
+    categories = ['Events', 'Releases', 'Interviews', 'Reviews', 'Culture']
+    return render_template('admin_edit_article.html', article=article, categories=categories)
+
+@app.route('/admin/news/delete/<int:article_id>', methods=['POST'])
+@login_required
+def admin_delete_article(article_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    article = News.query.get_or_404(article_id)
+    
+    try:
+        db.session.delete(article)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Article deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/admin/news/stats')
+@login_required
+def news_stats():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    # Get basic stats
+    total_articles = News.query.count()
+    published_articles = News.query.filter_by(is_published=True).count()
+    pending_articles = News.query.filter_by(is_published=False).count()
+    
+    # Get top performing articles
+    top_articles = News.query.order_by(News.views.desc()).limit(5).all()
+    
+    # Get articles by category
+    categories = db.session.query(
+        News.category,
+        db.func.count(News.id).label('count')
+    ).group_by(News.category).all()
+    
+    return render_template('news_stats.html',
+                         total_articles=total_articles,
+                         published_articles=published_articles,
+                         pending_articles=pending_articles,
+                         top_articles=top_articles,
+                         categories=categories)
 
 # --- DB init ---
 def create_database():

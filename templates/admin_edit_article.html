@@ -1,0 +1,46 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Edit Article</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" 
+                   value="{{ article.title }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select class="form-select" id="category" name="category" required>
+                <option value="">Select a category</option>
+                {% for category in categories %}
+                <option value="{{ category }}" 
+                        {% if category == article.category %}selected{% endif %}>
+                    {{ category }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Current Image</label><br>
+            <img src="{{ url_for('static', filename='uploads/profile_pics/' + article.image) }}" 
+                 alt="{{ article.title }}" 
+                 style="max-width: 200px; max-height: 200px;"
+                 class="img-thumbnail mb-2">
+            <input type="file" class="form-control" id="image" name="image">
+        </div>
+        
+        <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea class="form-control" id="content" name="content" 
+                      rows="10" required>{{ article.content }}</textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('admin_news') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

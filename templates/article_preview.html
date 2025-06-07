@@ -1,0 +1,63 @@
+{% extends "journalist_base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <article class="article-preview">
+                <h1 class="mb-3">{{ article.title }}</h1>
+                
+                <div class="mb-4">
+                    <span class="badge bg-primary">{{ article.category }}</span>
+                    <span class="text-muted ms-2">
+                        Created: {{ article.date_posted.strftime('%B %d, %Y') }}
+                    </span>
+                    <span class="badge ms-2 {% if article.is_published %}bg-success{% else %}bg-warning{% endif %}">
+                        {% if article.is_published %}Published{% else %}Pending Approval{% endif %}
+                    </span>
+                </div>
+                
+                {% if article.image != 'default_news.jpg' %}
+                <img src="{{ url_for('static', filename='uploads/profile_pics/' + article.image) }}" 
+                     alt="{{ article.title }}" 
+                     class="img-fluid rounded mb-4">
+                {% endif %}
+                
+                <div class="article-content">
+                    {{ article.content|safe }}
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('edit_article', article_id=article.id) }}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Edit Article
+                    </a>
+                    <a href="{{ url_for('journalist_articles') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Articles
+                    </a>
+                </div>
+            </article>
+        </div>
+    </div>
+</div>
+
+<style>
+.article-preview {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.article-content {
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}

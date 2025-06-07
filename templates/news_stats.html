@@ -1,0 +1,77 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>News Statistics</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Articles</h5>
+                    <p class="card-text display-4">{{ total_articles }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Published</h5>
+                    <p class="card-text display-4">{{ published_articles }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <p class="card-text display-4">{{ pending_articles }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Top Performing Articles</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for article in top_articles %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ article.title }}
+                            <span class="badge bg-primary rounded-pill">{{ article.views }} views</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Articles by Category</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for category in categories %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ category[0] }}
+                            <span class="badge bg-primary rounded-pill">{{ category[1] }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{{ url_for('admin_news') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Moderation
+        </a>
+    </div>
+</div>
+{% endblock %}
