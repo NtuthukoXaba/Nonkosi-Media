@@ -747,6 +747,201 @@ def announce_winner(event_id):
     
     return redirect(url_for('voting_events'))
 
+# --- Artist Management Routes ---
+@app.route('/admin/artists')
+@login_required
+def manage_artists():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    # Get all artists with their song and gig counts
+    artists = db.session.query(
+        Artist,
+        db.func.count(Song.id).label('song_count'),
+        db.func.count(Gig.id).label('gig_count')
+    ).outerjoin(Song, Artist.id == Song.artist_id)\
+     .outerjoin(Gig, Artist.id == Gig.artist_id)\
+     .group_by(Artist.id)\
+     .order_by(Artist.name)\
+     .all()
+    
+    return render_template('manage_artists.html', artists=artists)
+
+@app.route('/admin/add_artist', methods=['GET', 'POST'])
+@login_required
+def add_artist():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        try:
+            name = request.form.get('name')
+            bio = request.form.get('bio')
+            
+            # Social media links
+            social_media = {
+                'facebook': request.form.get('facebook'),
+                'twitter': request.form.get('twitter'),
+                'instagram': request.form.get('instagram'),
+                'youtube': request.form.get('youtube')
+            }
+            
+            # Handle file upload
+            image = 'artist_default.jpg'
+            if 'image' in request.files:
+                file = request.files['image']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(f"artist_{name}_{file.filename}")
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    image = filename
+            
+            new_artist = Artist(
+                name=name,
+                bio=bio,
+                image=image,
+                social_media=social_media
+            )
+            
+            db.session.add(new_artist)
+            db.session.commit()
+            
+            flash('Artist added successfully!', 'success')
+            return redirect(url_for('manage_artists'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding artist: {str(e)}', 'error')
+    
+    return render_template('add_artist.html')
+
+@app.route('/admin/edit_artist/<int:artist_id>', methods=['GET', 'POST'])
+@login_required
+def edit_artist(artist_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    artist = Artist.query.get_or_404(artist_id)
+    
+    if request.method == 'POST':
+        try:
+            artist.name = request.form.get('name')
+            artist.bio = request.form.get('bio')
+            
+            # Update social media
+            artist.social_media = {
+                'facebook': request.form.get('facebook'),
+                'twitter': request.form.get('twitter'),
+                'instagram': request.form.get('instagram'),
+                'youtube': request.form.get('youtube')
+            }
+            
+            # Handle file upload
+            if 'image' in request.files:
+                file = request.files['image']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(f"artist_{artist.name}_{file.filename}")
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    artist.image = filename
+            
+            db.session.commit()
+            flash('Artist updated successfully!', 'success')
+            return redirect(url_for('manage_artists'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating artist: {str(e)}', 'error')
+    
+    return render_template('edit_artist.html', artist=artist)
+
+@app.route('/admin/delete_artist/<int:artist_id>', methods=['POST'])
+@login_required
+def delete_artist(artist_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    artist = Artist.query.get_or_404(artist_id)
+    
+    try:
+        db.session.delete(artist)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Artist deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# --- Gig Management Routes ---
+@app.route('/admin/artist/<int:artist_id>/gigs')
+@login_required
+def manage_gigs(artist_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    artist = Artist.query.get_or_404(artist_id)
+    gigs = Gig.query.filter_by(artist_id=artist_id).order_by(Gig.date).all()
+    
+    return render_template('manage_gigs.html', artist=artist, gigs=gigs)
+
+@app.route('/admin/add_gig/<int:artist_id>', methods=['POST'])
+@login_required
+def add_gig(artist_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'success': False, 'message': 'No data received'}), 400
+        
+        venue = data.get('venue')
+        city = data.get('city')
+        date_str = data.get('date')
+        
+        # Validation
+        if not all([venue, city, date_str]):
+            return jsonify({'success': False, 'message': 'All fields are required'}), 400
+        
+        # Convert string to datetime
+        date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+        
+        new_gig = Gig(
+            artist_id=artist_id,
+            venue=venue,
+            city=city,
+            date=date
+        )
+        
+        db.session.add(new_gig)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Gig added successfully'})
+    except ValueError as e:
+        return jsonify({'success': False, 'message': 'Invalid date format'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/admin/delete_gig/<int:gig_id>', methods=['DELETE'])
+@login_required
+def delete_gig(gig_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    gig = Gig.query.get_or_404(gig_id)
+    
+    try:
+        db.session.delete(gig)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Gig deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 # --- DB init ---
 def create_database():
     with app.app_context():

@@ -1,0 +1,64 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Edit Artist: {{ artist.name }}</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">Artist Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ artist.name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="bio">Biography</label>
+            <textarea class="form-control" id="bio" name="bio" rows="5" required>{{ artist.bio }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Current Image</label><br>
+            <img src="{{ url_for('static', filename='uploads/profile_pics/' + artist.image) }}" 
+                 alt="{{ artist.name }}" 
+                 style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;">
+            <div class="mt-2">
+                <label for="image">Change Image</label>
+                <input type="file" class="form-control-file" id="image" name="image">
+            </div>
+        </div>
+        
+        <h3>Social Media Links</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="facebook">Facebook</label>
+                    <input type="url" class="form-control" id="facebook" name="facebook" 
+                           value="{{ artist.social_media.facebook if artist.social_media and artist.social_media.facebook }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="twitter">Twitter</label>
+                    <input type="url" class="form-control" id="twitter" name="twitter" 
+                           value="{{ artist.social_media.twitter if artist.social_media and artist.social_media.twitter }}">
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="instagram">Instagram</label>
+                    <input type="url" class="form-control" id="instagram" name="instagram" 
+                           value="{{ artist.social_media.instagram if artist.social_media and artist.social_media.instagram }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="youtube">YouTube</label>
+                    <input type="url" class="form-control" id="youtube" name="youtube" 
+                           value="{{ artist.social_media.youtube if artist.social_media and artist.social_media.youtube }}">
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('manage_artists') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
