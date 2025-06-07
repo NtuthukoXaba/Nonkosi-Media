@@ -4,59 +4,115 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nonkosi Media - Celebrating Maskandi Music</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+    }
+    
     body {
       margin: 0;
       font-family: 'Ubuntu', sans-serif;
-      background-color: #f5f5f5;
-      color: #222;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
     }
 
     .container {
       max-width: 1200px;
-      margin: auto;
+      margin: 0 auto;
       padding: 0 20px;
     }
 
+    /* Header Styles */
     .site-header {
-      background-color: #0b3c5d;
+      background-color: var(--primary);
       color: white;
-      padding: 10px 0;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .logo {
-      font-size: 1.8em;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: #f22e3e;
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo i {
+      margin-right: 10px;
+      font-size: 1.2em;
     }
 
     .main-nav {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
+      gap: 20px;
     }
 
     .main-nav a {
       color: white;
-      margin: 0 10px;
       text-decoration: none;
       font-weight: 500;
+      padding: 5px 0;
+      position: relative;
+      transition: color 0.3s;
     }
 
-    .lang-toggle {
-      margin-left: auto;
+    .main-nav a:hover {
+      color: var(--secondary);
     }
 
+    .main-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .main-nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
     .hero {
-      background-color: #103b6f;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
       color: white;
-      display: flex;
-      justify-content: center;
-      padding: 40px 0;
+      padding: 80px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+      opacity: 0.15;
+      z-index: 0;
     }
 
     .hero .container {
@@ -64,77 +120,279 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-text {
+      flex: 1;
+      min-width: 300px;
+      padding-right: 40px;
     }
 
     .hero-text h1 {
-      font-size: 2.5em;
+      font-size: 2.8em;
       margin-bottom: 20px;
+      line-height: 1.2;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .hero-text p {
+      font-size: 1.1em;
+      margin-bottom: 30px;
+      max-width: 500px;
     }
 
     .btn {
-      background-color: #f22e3e;
+      display: inline-block;
+      background-color: var(--secondary);
       color: white;
-      padding: 10px 20px;
+      padding: 12px 30px;
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 30px;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
+    }
+
+    .btn:hover {
+      background-color: transparent;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
+    }
+
+    .hero-img {
+      flex: 1;
+      min-width: 300px;
+      text-align: center;
     }
 
     .hero-img img {
       max-width: 100%;
       height: auto;
       border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transition: transform 0.5s;
     }
 
-    .releases, .charts {
-      padding: 40px 0;
-      background-color: #ffffff;
+    .hero-img:hover img {
+      transform: scale(1.03);
+    }
+
+    /* Section Styles */
+    .section {
+      padding: 60px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+    }
+
+    .section-title h2 {
+      font-size: 2.2em;
+      color: var(--primary);
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .section-title h2::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background-color: var(--secondary);
+      margin: 15px auto 0;
+    }
+
+    /* Releases Section */
+    .releases {
+      background-color: white;
     }
 
     .release-grid {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
     }
 
     .release-card {
-      background-color: #0b3c5d;
-      color: white;
+      background-color: white;
       border-radius: 10px;
-      padding: 15px;
-      width: 30%;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+
+    .release-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
     }
 
     .release-card img {
       width: 100%;
-      border-radius: 10px;
+      height: 250px;
+      object-fit: cover;
+      transition: transform 0.5s;
     }
 
-    .release-card h3 {
-      margin-top: 10px;
+    .release-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .release-info {
+      padding: 20px;
+    }
+
+    .release-info h3 {
+      margin: 0 0 10px;
+      font-size: 1.3em;
+      color: var(--primary);
+    }
+
+    .release-info p {
+      margin: 0 0 15px;
+      color: #666;
+    }
+
+    .release-links {
+      display: flex;
+      gap: 15px;
+    }
+
+    .release-links a {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .release-links a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    /* Charts Section */
+    .charts {
+      background-color: #f9f9f9;
+    }
+
+    .chart-list {
+      list-style: none;
+      padding: 0;
+      max-width: 800px;
+      margin: 0 auto 30px;
+    }
+
+    .chart-list li {
+      background-color: white;
+      padding: 15px 20px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.3s;
+    }
+
+    .chart-list li:hover {
+      transform: translateX(10px);
+    }
+
+    .chart-list li:nth-child(1) {
+      border-left: 5px solid gold;
+    }
+
+    .chart-list li:nth-child(2) {
+      border-left: 5px solid silver;
+    }
+
+    .chart-list li:nth-child(3) {
+      border-left: 5px solid #cd7f32; /* bronze */
+    }
+
+    .chart-position {
+      font-weight: bold;
+      color: var(--primary);
+      margin-right: 15px;
+      min-width: 30px;
+    }
+
+    .chart-song {
+      flex-grow: 1;
+    }
+
+    .chart-artist {
+      color: #666;
+      font-style: italic;
+    }
+
+    .view-all {
+      text-align: center;
+    }
+
+    /* Footer */
+    .site-footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 40px 0 20px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .footer-column h3 {
+      color: var(--secondary);
+      margin-bottom: 20px;
       font-size: 1.2em;
     }
 
-    .charts ol {
-      padding-left: 20px;
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
     }
 
-    .site-footer {
-      background-color: #0b3c5d;
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column a {
       color: white;
-      text-align: center;
-      padding: 20px 0;
-      margin-top: 40px;
-      position: relative;
+      text-decoration: none;
+      transition: color 0.3s;
     }
 
-    .hidden-login-trigger {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 10px;
-      height: 10px;
-      cursor: pointer;
-      opacity: 0;
+    .footer-column a:hover {
+      color: var(--secondary);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .social-links a {
+      color: white;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    .social-links a:hover {
+      color: var(--secondary);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
 
     /* Modal Styles */
@@ -153,52 +411,129 @@
     .modal-content {
       background-color: #fff;
       margin: 10% auto;
-      padding: 20px;
+      padding: 30px;
       border-radius: 8px;
-      width: 300px;
+      width: 100%;
+      max-width: 400px;
       text-align: center;
+      position: relative;
     }
 
     .modal-content h2 {
       margin-top: 0;
+      color: var(--primary);
     }
 
     .modal-content input {
-      width: 90%;
-      padding: 10px;
+      width: 100%;
+      padding: 12px;
       margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: 'Ubuntu', sans-serif;
     }
 
     .modal-content button {
-      background-color: #f22e3e;
+      background-color: var(--secondary);
       color: white;
-      padding: 10px;
+      padding: 12px;
       width: 100%;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
+      font-family: 'Ubuntu', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .modal-content button:hover {
+      background-color: var(--primary);
     }
 
     .close-btn {
-      float: right;
-      font-size: 20px;
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
       cursor: pointer;
-      color: red;
+      color: var(--secondary);
+      transition: color 0.3s;
     }
 
+    .close-btn:hover {
+      color: var(--primary);
+    }
+
+    /* Responsive Styles */
     @media (max-width: 768px) {
-      .hero .container, .release-grid {
+      .header-content {
         flex-direction: column;
-        align-items: center;
+        gap: 15px;
       }
-
-      .release-card {
-        width: 100%;
-      }
-
+      
       .main-nav {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-wrap: wrap;
+        justify-content: center;
       }
+      
+      .hero .container {
+        flex-direction: column;
+      }
+      
+      .hero-text {
+        padding-right: 0;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      
+      .hero-text p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .section-title h2 {
+        font-size: 1.8em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero {
+        padding: 60px 0;
+      }
+      
+      .hero-text h1 {
+        font-size: 2em;
+      }
+      
+      .btn {
+        padding: 10px 20px;
+      }
+      
+      .release-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
     }
   </style>
 </head>
@@ -206,10 +541,12 @@
 
 <!-- Header -->
 <header class="site-header">
-  <div class="container">
-    <div class="logo">NONKOSI MEDIA</div>
+  <div class="container header-content">
+    <a href="/" class="logo">
+      <i class="fas fa-music"></i> NONKOSI MEDIA
+    </a>
     <nav class="main-nav">
-      <a href="#">Home</a>
+      <a href="/">Home</a>
       <a href="/news">News</a>
       <a href="/new_music">New Music Alert</a>
       <a href="/charts">Charts</a>
@@ -222,68 +559,128 @@
 <!-- Hero Section -->
 <section class="hero">
   <div class="container">
-    <div class="hero-text">
-      <h1>CELEBRATING MASKANDI MUSIC</h1>
-      <a href="#" class="btn">Discover More</a>
+    <div class="hero-text fade-in">
+      <h1>CELEBRATING THE SOUL OF MASKANDI MUSIC</h1>
+      <p>Discover the latest hits, upcoming releases, and exclusive content from your favorite Maskandi artists.</p>
+      <a href="/artists" class="btn">Explore Artists</a>
     </div>
-    <div class="hero-img">
-      <img src="https://via.placeholder.com/300x400" alt="Maskandi Artist"/>
+    <div class="hero-img fade-in delay-1">
+      <img src="{{ url_for('static', filename='images/hero-maskandi.jpg') }}" alt="Maskandi Artist Performance"/>
     </div>
   </div>
 </section>
 
 <!-- Latest Releases -->
-<section class="releases">
+<section class="section releases">
   <div class="container">
-    <h2>Latest Releases</h2>
+    <div class="section-title">
+      <h2>Latest Releases</h2>
+    </div>
     <div class="release-grid">
-      <div class="release-card">
-        <img src="https://via.placeholder.com/150" alt="Artist"/>
-        <h3>Ugabehoza</h3>
-        <p>LuKoprio Gopenios</p>
-        <a href="#">Spotify</a> | <a href="#">YouTube</a>
+      {% for song in latest_releases %}
+      <div class="release-card fade-in delay-{{ loop.index % 3 }}">
+        <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" alt="{{ song.title }}"/>
+        <div class="release-info">
+          <h3>{{ song.title }}</h3>
+          <p>{{ song.artist.name }}</p>
+          <div class="release-links">
+            {% if song.spotify_link %}
+            <a href="{{ song.spotify_link }}" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>
+            {% endif %}
+            {% if song.youtube_link %}
+            <a href="{{ song.youtube_link }}" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <div class="release-card">
-        <img src="https://via.placeholder.com/150" alt="Artist"/>
-        <h3>Isango Lasekhaya</h3>
-        <p>Ohanika Kopidenñruip</p>
-        <a href="#">Spotify</a> | <a href="#">YouTube</a>
-      </div>
-      <div class="release-card">
-        <img src="https://via.placeholder.com/150" alt="Artist"/>
-        <h3>Ngivule</h3>
-        <p>Scpleniklys</p>
-        <a href="www.youtube.com">Spotify</a>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </section>
 
 <!-- Top 20 Charts -->
-<section class="charts">
+<section class="section charts">
   <div class="container">
-    <h2>Top 20 Maskandi</h2>
+    <div class="section-title">
+      <h2>Top 20 Maskandi</h2>
+    </div>
     <ol class="chart-list">
-      {% for song in top_3 %}
-      <li><strong>{{ song.artist.name }}</strong> - {{ song.title }}</li>
+      {% for song in top_songs %}
+      <li class="fade-in delay-{{ loop.index % 3 }}">
+        <span class="chart-position">{{ loop.index }}</span>
+        <span class="chart-song">
+          <strong>{{ song.title }}</strong>
+          <span class="chart-artist">by {{ song.artist.name }}</span>
+        </span>
+      </li>
       {% endfor %}
     </ol>
-    <a href="/charts" class="btn">View Full Chart</a>
+    <div class="view-all">
+      <a href="/charts" class="btn">View Full Chart</a>
+    </div>
+  </div>
+</section>
+
+<!-- Upcoming Events Section -->
+<section class="section" style="background-color: var(--primary); color: white;">
+  <div class="container">
+    <div class="section-title">
+      <h2 style="color: white;">Upcoming Events</h2>
+    </div>
+    <div class="release-grid">
+      {% for gig in upcoming_gigs %}
+      <div class="release-card fade-in delay-{{ loop.index % 3 }}" style="background-color: rgba(255,255,255,0.1); color: white;">
+        <img src="{{ url_for('static', filename='uploads/profile_pics/' + gig.artist.image) }}" alt="{{ gig.artist.name }}"/>
+        <div class="release-info">
+          <h3>{{ gig.artist.name }}</h3>
+          <p><i class="fas fa-map-marker-alt"></i> {{ gig.venue }}, {{ gig.city }}</p>
+          <p><i class="fas fa-calendar-alt"></i> {{ gig.date.strftime('%B %d, %Y') }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
 </section>
 
 <!-- Footer -->
 <footer class="site-footer">
   <div class="container">
-  <p>
-    <a href="/login" style="color: inherit; text-decoration: none;">
-      © 2025 Nonkosi Media. All rights reserved.
-    </a>
-  </p>
-</div>
-
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>About Us</h3>
+        <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/news">News</a></li>
+          <li><a href="/new_music">New Music</a></li>
+          <li><a href="/charts">Charts</a></li>
+          <li><a href="/artists">Artists</a></li>
+          <li><a href="/vote">Vote</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Contact</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+          <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+          <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+    </div>
+  </div>
 </footer>
-
 
 <!-- Hidden Login Modal -->
 <div id="loginModal" class="modal">
@@ -304,6 +701,32 @@
       modal.style.display = "none";
     }
   };
+
+  // Add smooth scrolling to all links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
+      });
+    });
+  });
+
+  // Animation on scroll
+  const fadeElements = document.querySelectorAll('.fade-in');
+  
+  const fadeInOnScroll = function() {
+    for (let i = 0; i < fadeElements.length; i++) {
+      const elem = fadeElements[i];
+      const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+      if (distInView < 0) {
+        elem.classList.add('in-view');
+      }
+    }
+  };
+  
+  window.addEventListener('scroll', fadeInOnScroll);
+  fadeInOnScroll();
 </script>
 
 </body>
