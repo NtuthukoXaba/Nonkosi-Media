@@ -171,6 +171,33 @@ class UpcomingMusic(db.Model):
     
     artist = db.relationship('Artist', backref='upcoming_music')
 
+def get_recent_activities():
+    activities = []
+    
+    # Add recent news approvals
+    recent_news = News.query.order_by(News.date_posted.desc()).limit(3).all()
+    for article in recent_news:
+        activities.append({
+            'icon': 'newspaper',
+            'title': f"Article {'published' if article.is_published else 'submitted'}: {article.title}",
+            'user': article.author.username,
+            'time': article.date_posted.strftime('%b %d, %H:%M')
+        })
+    
+    # Add recent artist additions
+    recent_artists = Artist.query.order_by(Artist.id.desc()).limit(2).all()
+    for artist in recent_artists:
+        activities.append({
+            'icon': 'user',
+            'title': f"Artist added: {artist.name}",
+            'user': 'System',
+            'time': 'Recently'
+        })
+    
+    # Sort by timestamp (you'd need to add proper timestamps to your models)
+    activities.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
+    return activities[:5]  # Return only the 5 most recent
+
 @app.context_processor
 def inject_datetime():
     return {'datetime': datetime}
@@ -192,7 +219,24 @@ def admin_home():
     if current_user.role != 'admin':
         flash('You are not authorized to access this page', 'error')
         return redirect(url_for('home'))
-    return render_template('admin_home.html')
+    
+    stats = {
+        'total_artists': Artist.query.count(),
+        'new_songs': Song.query.filter(Song.release_date >= datetime.utcnow() - timedelta(days=7)).count(),
+        'pending_articles': News.query.filter_by(is_published=False).count(),
+        'active_votes': VoteEvent.query.filter(VoteEvent.is_active==True, VoteEvent.end_date >= datetime.utcnow()).count(),
+        'upcoming_music': UpcomingMusic.query.filter(UpcomingMusic.release_date > datetime.utcnow()).count(),
+        'upcoming_gigs': Gig.query.filter(Gig.date >= datetime.utcnow()).count(),
+        'charted_songs': Song.query.filter(Song.chart_position != None).count(),
+        'total_votes': VoteRecord.query.count(),
+        'published_articles': News.query.filter_by(is_published=True).count(),
+        'journalists': User.query.filter(User.role.in_(['journalist', 'senior_journalist', 'junior_journalist'])).count()
+    }
+    
+    return render_template('admin_home.html', 
+                         recent_activities=get_recent_activities(),
+                         stats=stats,
+                         datetime=datetime)
 
 @app.route('/journalist')
 @login_required
@@ -1426,6 +1470,19 @@ def new_music():
     ).order_by(UpcomingMusic.release_date).all()
     
     return render_template('new_music.html', upcoming_music=upcoming)
+
+@app.route('/admin/api/stats')
+@login_required
+def admin_stats():
+    if current_user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    return jsonify({
+        'total_artists': Artist.query.count(),
+        'new_songs': Song.query.filter(Song.release_date >= datetime.utcnow() - timedelta(days=7)).count(),
+        'pending_articles': News.query.filter_by(is_published=False).count(),
+        'active_votes': VoteEvent.query.filter(VoteEvent.is_active==True, VoteEvent.end_date >= datetime.utcnow()).count()
+    })
 
 # --- DB init ---
 def create_database():
