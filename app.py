@@ -763,47 +763,50 @@ def view_voting_event(event_id):
 
 @app.route('/vote/submit/<int:event_id>', methods=['POST'])
 def submit_vote(event_id):
+    print(f"Received form data: {request.form}")  # Debug logging
+    
     event = VoteEvent.query.get_or_404(event_id)
     option_id = request.form.get('option_id')
     
-    # Validate event is active
+    # Validate option_id
+    if not option_id:
+        return jsonify({'success': False, 'message': 'No voting option selected'}), 400
+    
+    try:
+        option_id = int(option_id)
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Invalid voting option'}), 400
+    
+    # Check if option exists for this event
+    option = VoteOption.query.filter_by(id=option_id, vote_event_id=event_id).first()
+    if not option:
+        return jsonify({'success': False, 'message': 'Invalid voting option'}), 400
+    
+    # Check if event is active
     if not event.is_active or datetime.utcnow() > event.end_date:
-        flash('This voting event is no longer active', 'error')
-        return redirect(url_for('view_voting_event', event_id=event_id))
+        return jsonify({'success': False, 'message': 'This voting event has ended'}), 400
     
-    # Check IP hasn't voted already
+    # Check if IP has already voted
     ip_address = request.remote_addr
-    existing_vote = VoteRecord.query.filter_by(
-        vote_event_id=event_id,
-        ip_address=ip_address
-    ).first()
-    
-    if existing_vote:
-        flash('You have already voted in this event', 'error')
-        return redirect(url_for('view_voting_event', event_id=event_id))
+    if VoteRecord.query.filter_by(vote_event_id=event_id, ip_address=ip_address).first():
+        return jsonify({'success': False, 'message': 'You have already voted in this event'}), 400
     
     # Record the vote
     try:
-        # Update vote count
-        option = VoteOption.query.get(option_id)
         option.vote_count += 1
-        db.session.add(option)
-        
-        # Record the vote
         new_vote = VoteRecord(
             vote_event_id=event_id,
             option_id=option_id,
             ip_address=ip_address
         )
         db.session.add(new_vote)
-        
         db.session.commit()
-        flash('Your vote has been recorded!', 'success')
+        return jsonify({'success': True, 'message': 'Vote recorded successfully'})
     except Exception as e:
         db.session.rollback()
-        flash('An error occurred while recording your vote', 'error')
+        return jsonify({'success': False, 'message': str(e)}), 500
     
-    return redirect(url_for('view_voting_event', event_id=event_id))
+    # Rest of your existing code...
 
 @app.route('/admin/announce_winner/<int:event_id>')
 @login_required

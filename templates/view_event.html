@@ -248,6 +248,8 @@
       overflow: hidden;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
     }
     
     .option-card:hover {
@@ -273,6 +275,9 @@
     
     .option-body {
       padding: 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
     
     .option-title {
@@ -284,6 +289,7 @@
     .option-meta {
       color: var(--gray);
       margin-bottom: 20px;
+      flex-grow: 1;
     }
     
     .vote-btn {
@@ -299,12 +305,20 @@
       transition: all 0.3s;
       font-family: 'Ubuntu', sans-serif;
       font-size: 1rem;
+      align-self: flex-start;
     }
     
     .vote-btn:hover {
       background: var(--primary);
       transform: translateY(-3px);
       box-shadow: 0 5px 15px rgba(11, 60, 93, 0.2);
+    }
+    
+    .vote-btn:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
     
     /* Footer */
@@ -491,7 +505,7 @@
             You have already voted in this event
           </div>
         {% else %}
-          <form method="POST" action="{{ url_for('submit_vote', event_id=event.id) }}" class="fade-in">
+          <form method="POST" action="{{ url_for('submit_vote', event_id=event.id) }}" class="fade-in" id="voteForm">
         {% endif %}
       {% endif %}
       
@@ -568,9 +582,8 @@
           <h3>Contact</h3>
           <ul>
             <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
-            <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
-            <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
-          </ul>
+            <li><i class="fas fa-phone"></i> +27 12 345 6789</i>
+                    </ul>
         </div>
       </div>
       <div class="copyright">
@@ -580,7 +593,7 @@
   </footer>
 
   <script>
-        // Animation on scroll
+    // Animation on scroll
     const fadeElements = document.querySelectorAll('.fade-in');
     
     const fadeInOnScroll = function() {
@@ -598,36 +611,61 @@
     fadeInOnScroll();
 
     // Handle form submission with AJAX
-    document.querySelectorAll('form').forEach(form => {
-      form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const action = this.getAttribute('action');
-        
-        try {
-          const response = await fetch(action, {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (response.ok) {
-            const result = await response.json();
-            if (result.success) {
-              // Show success message and reload page
-              alert('Your vote has been recorded!');
-              window.location.reload();
-            } else {
-              alert(result.message || 'An error occurred');
-            }
-          } else {
-            alert('Error submitting vote');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Network error occurred');
-        }
+    document.getElementById('voteForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Get which button was clicked
+      const clickedButton = e.submitter;
+      if (!clickedButton || clickedButton.name !== 'option_id') {
+        alert('Please select a voting option');
+        return;
+      }
+      
+      // Disable all vote buttons during submission
+      const voteButtons = document.querySelectorAll('.vote-btn');
+      voteButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Voting...';
       });
+
+      // Create form data
+      const formData = new FormData();
+      formData.append('option_id', clickedButton.value);
+      
+      const action = this.getAttribute('action');
+      
+      try {
+        const response = await fetch(action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Error submitting vote');
+        }
+        
+        const result = await response.json();
+        if (result.success) {
+          alert('Your vote has been recorded!');
+          window.location.reload();
+        } else {
+          throw new Error(result.message || 'Failed to record vote');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert(error.message || 'Failed to submit vote. Please try again.');
+        
+        // Re-enable buttons if there was an error
+        voteButtons.forEach(btn => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-vote-yea"></i> Vote';
+        });
+      }
     });
 
     // Smooth scrolling for anchor links
