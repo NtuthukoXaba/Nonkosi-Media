@@ -681,15 +681,34 @@ def view_voting_event(event_id):
         ip_address=ip_address
     ).first() is not None
     
-    # For past events, get the winner
+    # For past events, get the winner and their details
     winner = None
+    winner_votes = 0
     if not event.is_active or datetime.utcnow() > event.end_date:
-        result = VoteResult.query.filter_by(vote_event_id=event.id).first()
-        if result:
+        # Find the option with most votes
+        winner_option = VoteOption.query.filter_by(vote_event_id=event.id)\
+                                     .order_by(VoteOption.vote_count.desc())\
+                                     .first()
+        
+        if winner_option:
+            winner_votes = winner_option.vote_count
             if event.category in ['song', 'song_of_year']:
-                winner = Song.query.get(result.winner_id)
+                winner = {
+                    'type': 'song',
+                    'id': winner_option.song_id,
+                    'title': winner_option.song.title,
+                    'artist': winner_option.song.artist.name,
+                    'cover_image': winner_option.song.cover_image,
+                    'votes': winner_votes
+                }
             else:
-                winner = Artist.query.get(result.winner_id)
+                winner = {
+                    'type': 'artist',
+                    'id': winner_option.artist_id,
+                    'name': winner_option.artist.name,
+                    'image': winner_option.artist.image,
+                    'votes': winner_votes
+                }
     
     return render_template('view_event.html',
                          event=event,
