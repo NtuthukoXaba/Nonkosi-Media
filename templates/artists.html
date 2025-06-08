@@ -4,22 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maskandi Artists | Nonkosi Media</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
-      --primary-color: #0b3c5d;
-      --secondary-color: #f22e3e;
-      --light-color: #f8f9fa;
-      --dark-color: #212529;
-      --gray-color: #6c757d;
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #6c757d;
     }
     
     body {
       font-family: 'Ubuntu', sans-serif;
       margin: 0;
       padding: 0;
-      color: var(--dark-color);
+      color: var(--dark);
       line-height: 1.6;
+      background-color: var(--light);
     }
     
     .container {
@@ -28,70 +31,135 @@
       padding: 0 20px;
     }
     
-    /* Artists Header */
-    .artists-header {
-      background-color: var(--primary-color);
+    /* Header */
+    .site-header {
+      background-color: var(--primary);
       color: white;
-      padding: 60px 0 40px;
-      text-align: center;
-      margin-bottom: 40px;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo i {
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    .main-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 5px 0;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .main-nav a:hover {
+      color: var(--secondary);
+    }
+
+    .main-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .main-nav a:hover::after {
+      width: 100%;
     }
     
-    .artists-header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
+    /* Page Title */
+    .page-title {
+      text-align: center;
+      margin: 40px 0 30px;
+    }
+    
+    .page-title h1 {
+      font-size: 2.5em;
+      color: var(--primary);
+      margin-bottom: 10px;
     }
     
     /* Search Box */
     .search-box {
       max-width: 600px;
-      margin: 0 auto 40px;
+      margin: 0 auto 50px;
       position: relative;
     }
     
     .search-box input {
       width: 100%;
-      padding: 12px 20px 12px 50px;
+      padding: 15px 25px 15px 55px;
       border-radius: 30px;
-      border: 1px solid #ddd;
-      font-size: 16px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      font-size: 1rem;
+      font-family: 'Ubuntu', sans-serif;
     }
     
-    .search-box::before {
-      content: "🔍";
+    .search-box i {
       position: absolute;
       left: 20px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 18px;
+      color: var(--gray);
+      font-size: 1.2em;
     }
     
     /* Artists Grid */
     .artists-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 30px;
-      margin-bottom: 50px;
+      margin-bottom: 60px;
     }
     
     .artist-card {
       background: white;
-      border-radius: 8px;
+      border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: all 0.3s;
       text-align: center;
     }
     
     .artist-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
     }
     
     .artist-image {
-      height: 250px;
+      height: 280px;
       overflow: hidden;
+      position: relative;
     }
     
     .artist-image img {
@@ -102,63 +170,204 @@
     }
     
     .artist-card:hover .artist-image img {
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
     
     .artist-content {
-      padding: 20px;
+      padding: 25px 20px;
     }
     
     .artist-name {
-      font-size: 1.3rem;
-      margin: 10px 0;
-      color: var(--primary-color);
-    }
-    
-    .artist-songs {
-      font-size: 0.9rem;
-      color: var(--gray-color);
-      margin-bottom: 15px;
+      font-size: 1.4em;
+      margin: 0 0 15px;
+      color: var(--primary);
     }
     
     .view-profile {
       display: inline-block;
-      background: var(--secondary-color);
+      background: var(--secondary);
       color: white;
-      padding: 8px 20px;
-      border-radius: 4px;
+      padding: 10px 25px;
+      border-radius: 30px;
       text-decoration: none;
       font-weight: 500;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
+    }
+    
+    .view-profile:hover {
+      background: transparent;
+      color: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
     }
     
     .no-artists {
       text-align: center;
       grid-column: 1 / -1;
-      padding: 50px 0;
-      color: var(--gray-color);
+      padding: 60px 0;
+      color: var(--gray);
+    }
+    
+    .no-artists i {
+      font-size: 3em;
+      margin-bottom: 20px;
+      color: var(--secondary);
+    }
+    
+    .no-artists h3 {
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+    
+    /* Footer */
+    .site-footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 40px 0 20px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .footer-column h3 {
+      color: var(--secondary);
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-column a:hover {
+      color: var(--secondary);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .social-links a {
+      color: white;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    .social-links a:hover {
+      color: var(--secondary);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
     
     /* Responsive */
     @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .page-title h1 {
+        font-size: 2em;
+      }
+      
+      .artists-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+      
+      .artist-image {
+        height: 240px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .page-title h1 {
+        font-size: 1.8em;
+      }
+      
       .artists-grid {
         grid-template-columns: 1fr;
       }
     }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
+    }
   </style>
 </head>
 <body>
-  <!-- Artists Header -->
-  <header class="artists-header">
-    <div class="container">
-      <h1>Maskandi Artists</h1>
-      <p>Discover the talented musicians shaping the Maskandi sound</p>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="/" class="logo">
+        <i class="fas fa-music"></i> NONKOSI MEDIA
+      </a>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/news">News</a>
+        <a href="/new_music">New Music Alert</a>
+        <a href="/charts">Charts</a>
+        <a href="/artists">Artists</a>
+        <a href="/vote">Vote</a>
+      </nav>
     </div>
   </header>
 
   <div class="container">
+    <!-- Page Title -->
+    <div class="page-title fade-in">
+      <h1>Maskandi Artists</h1>
+    </div>
+
     <!-- Search Box -->
-    <div class="search-box">
+    <div class="search-box fade-in delay-1">
       <form action="/artists" method="get">
+        <i class="fas fa-search"></i>
         <input type="text" name="search" placeholder="Search artists..." 
                value="{{ search_query if search_query }}">
       </form>
@@ -168,7 +377,7 @@
     <div class="artists-grid">
       {% if artists %}
         {% for artist in artists %}
-        <div class="artist-card">
+        <div class="artist-card fade-in delay-{{ loop.index % 3 }}">
           <a href="/artist/{{ artist.id }}" style="text-decoration: none; color: inherit;">
             <div class="artist-image">
               <img src="{{ url_for('static', filename='uploads/profile_pics/' + artist.image) }}" 
@@ -176,22 +385,78 @@
             </div>
             <div class="artist-content">
               <h3 class="artist-name">{{ artist.name }}</h3>
-              <p class="artist-songs">{{ artist.songs|length }} songs</p>
-              <span class="view-profile">View Profile</span>
+              <a href="/artist/{{ artist.id }}" class="view-profile">View Profile</a>
             </div>
           </a>
         </div>
         {% endfor %}
       {% else %}
-        <div class="no-artists">
+        <div class="no-artists fade-in">
+          <i class="fas fa-user-alt-slash"></i>
           <h3>No artists found</h3>
-          <p>Try a different search term</p>
-          <a href="/artists" class="view-profile">Show All Artists</a>
+          <p>Try a different search term or check back later</p>
+          <a href="/artists" class="view-profile">View All Artists</a>
         </div>
       {% endif %}
     </div>
   </div>
 
-  <!-- Include your existing footer here -->
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>About Us</h3>
+          <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/news">News</a></li>
+            <li><a href="/new_music">New Music Alert</a></li>
+            <li><a href="/charts">Charts</a></li>
+            <li><a href="/artists">Artists</a></li>
+            <li><a href="/vote">Vote</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Contact</h3>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+            <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+            <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Animation on scroll
+    const fadeElements = document.querySelectorAll('.fade-in');
+    
+    const fadeInOnScroll = function() {
+      for (let i = 0; i < fadeElements.length; i++) {
+        const elem = fadeElements[i];
+        const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+        if (distInView < 0) {
+          elem.classList.add('in-view');
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', fadeInOnScroll);
+    fadeInOnScroll();
+  </script>
 </body>
 </html>

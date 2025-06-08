@@ -4,22 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maskandi News | Nonkosi Media</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
-      --primary-color: #0b3c5d;
-      --secondary-color: #f22e3e;
-      --light-color: #f8f9fa;
-      --dark-color: #212529;
-      --gray-color: #6c757d;
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #6c757d;
     }
     
     body {
       font-family: 'Ubuntu', sans-serif;
       margin: 0;
       padding: 0;
-      color: var(--dark-color);
+      color: var(--dark);
       line-height: 1.6;
+      background-color: var(--light);
     }
     
     .container {
@@ -29,77 +32,168 @@
     }
     
     /* Header */
-    .news-header {
-      background-color: var(--primary-color);
+    .site-header {
+      background-color: var(--primary);
       color: white;
-      padding: 60px 0 40px;
-      text-align: center;
-      margin-bottom: 40px;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-    
-    .news-header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-    }
-    
-    /* News Filter */
-    .news-filter {
+
+    .header-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo i {
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+
+    .main-nav {
+      display: flex;
       gap: 20px;
     }
-    
-    .category-filter {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .category-btn {
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: white;
-      color: var(--primary-color);
-      border: 1px solid var(--primary-color);
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-    
-    .category-btn:hover, .category-btn.active {
-      background: var(--primary-color);
+
+    .main-nav a {
       color: white;
-    }
-    
-    .search-box {
+      text-decoration: none;
+      font-weight: 500;
+      padding: 5px 0;
       position: relative;
-      min-width: 250px;
+      transition: color 0.3s;
     }
-    
-    .search-box input {
-      width: 100%;
-      padding: 10px 15px 10px 40px;
-      border-radius: 30px;
-      border: 1px solid #ddd;
-      font-size: 16px;
+
+    .main-nav a:hover {
+      color: var(--secondary);
     }
-    
-    .search-box::before {
-      content: "🔍";
+
+    .main-nav a::after {
+      content: '';
       position: absolute;
-      left: 15px;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .main-nav a:hover::after {
+      width: 100%;
+    }
+    
+    /* News Search */
+    .news-search {
+      max-width: 600px;
+      margin: 40px auto;
+      position: relative;
+    }
+    
+    .news-search input {
+      width: 100%;
+      padding: 15px 25px;
+      border-radius: 30px;
+      border: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      font-size: 1rem;
+      padding-left: 50px;
+    }
+    
+    .news-search i {
+      position: absolute;
+      left: 20px;
       top: 50%;
       transform: translateY(-50%);
+      color: var(--gray);
+    }
+    
+    /* Featured Article */
+    .featured-article {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 50px;
+      align-items: center;
+    }
+    
+    .featured-image {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      height: 300px; /* Reduced from 400px */
+    }
+    
+    .featured-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .featured-article:hover .featured-image img {
+      transform: scale(1.03);
+    }
+    
+    .featured-content {
+      padding: 15px 0;
+    }
+    
+    .featured-tag {
+      display: inline-block;
+      background-color: var(--secondary);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+    
+    .featured-title {
+      font-size: 1.8rem; /* Reduced from 2rem */
+      margin: 0 0 15px;
+      color: var(--primary);
+      line-height: 1.3;
+    }
+    
+    .featured-excerpt {
+      font-size: 1rem; /* Reduced from 1.1rem */
+      color: var(--dark);
+      margin-bottom: 20px;
+    }
+    
+    .featured-meta {
+      display: flex;
+      align-items: center;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    
+    .featured-author {
+      font-weight: 500;
+      color: var(--primary);
+      margin-right: 15px;
     }
     
     /* News Grid */
     .news-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 30px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly narrower cards */
+      gap: 25px; /* Reduced from 30px */
       margin-bottom: 50px;
     }
     
@@ -107,17 +201,17 @@
       background: white;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      transition: all 0.3s;
     }
     
     .news-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
       box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     }
     
     .news-image {
-      height: 220px;
+      height: 180px; /* Reduced from 220px */
       overflow: hidden;
     }
     
@@ -129,116 +223,282 @@
     }
     
     .news-card:hover .news-image img {
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
     
     .news-content {
       padding: 20px;
     }
     
-    .news-category {
-      display: inline-block;
-      background: var(--secondary-color);
-      color: white;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      margin-bottom: 10px;
-      font-weight: 500;
-    }
-    
     .news-title {
-      font-size: 1.4rem;
-      margin: 10px 0;
-      color: var(--primary-color);
+      font-size: 1.2rem; /* Reduced from 1.3rem */
+      margin: 0 0 12px;
+      color: var(--primary);
+      line-height: 1.4;
     }
     
     .news-excerpt {
-      color: var(--gray-color);
+      color: var(--gray);
       margin-bottom: 15px;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      font-size: 0.95rem;
     }
     
     .news-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.9rem;
-      color: var(--gray-color);
+      font-size: 0.85rem; /* Reduced from 0.9rem */
+      color: var(--gray);
       border-top: 1px solid #eee;
-      padding-top: 15px;
+      padding-top: 12px;
     }
     
     .news-author {
       font-weight: 500;
-      color: var(--primary-color);
+      color: var(--primary);
     }
     
+    /* No Articles */
     .no-articles {
       text-align: center;
       grid-column: 1 / -1;
       padding: 50px 0;
-      color: var(--gray-color);
+      color: var(--gray);
+    }
+    
+    .no-articles i {
+      font-size: 2.5rem; /* Reduced from 3rem */
+      margin-bottom: 15px;
+      color: var(--secondary);
+    }
+    
+    .no-articles h3 {
+      font-size: 1.3rem; /* Reduced from 1.5rem */
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+    
+    /* Load More */
+    .load-more {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .load-btn {
+      display: inline-block;
+      background-color: var(--secondary);
+      color: white;
+      padding: 10px 25px; /* Reduced from 12px 30px */
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
+      font-size: 0.95rem;
+    }
+    
+    .load-btn:hover {
+      background-color: transparent;
+      color: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
+    }
+    
+    /* Footer */
+    .site-footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 30px 0 15px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    .footer-column h3 {
+      color: var(--secondary);
+      margin-bottom: 15px;
+      font-size: 1.1em;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .footer-column a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-column a:hover {
+      color: var(--secondary);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .social-links a {
+      color: white;
+      font-size: 1.1em;
+      transition: color 0.3s;
+    }
+
+    .social-links a:hover {
+      color: var(--secondary);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.9rem;
     }
     
     /* Responsive */
+    @media (max-width: 992px) {
+      .featured-article {
+        grid-template-columns: 1fr;
+      }
+      
+      .featured-image {
+        height: 250px;
+      }
+    }
+    
     @media (max-width: 768px) {
       .news-grid {
         grid-template-columns: 1fr;
       }
       
-      .news-filter {
-        flex-direction: column;
-        align-items: flex-start;
+      .featured-title {
+        font-size: 1.6rem;
       }
+      
+      .news-image {
+        height: 200px;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .header-content {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .featured-image {
+        height: 200px;
+      }
+      
+      .featured-title {
+        font-size: 1.4rem;
+      }
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
     }
   </style>
 </head>
 <body>
-  <!-- News Header -->
-  <header class="news-header">
-    <div class="container">
-      <h1>Maskandi News</h1>
-      <p>Stay updated with the latest in Maskandi music, artists, and culture</p>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="/" class="logo">
+        <i class="fas fa-music"></i> NONKOSI MEDIA
+      </a>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/news">News</a>
+        <a href="/new_music">New Music Alert</a>
+        <a href="/charts">Charts</a>
+        <a href="/artists">Artists</a>
+        <a href="/vote">Vote</a>
+      </nav>
     </div>
   </header>
 
   <div class="container">
-    <!-- News Filter -->
-    <div class="news-filter">
-      <div class="category-filter">
-        <a href="/news" class="category-btn {% if not current_category %}active{% endif %}">All News</a>
-        {% for category in categories %}
-        <a href="/news?category={{ category }}" 
-           class="category-btn {% if current_category == category %}active{% endif %}">
-          {{ category }}
-        </a>
-        {% endfor %}
-      </div>
-      
-      <div class="search-box">
-        <form action="/news" method="get">
-          <input type="text" name="search" placeholder="Search news..." 
-                 value="{{ search_query if search_query }}">
-        </form>
-      </div>
+    <!-- News Search -->
+    <div class="news-search fade-in delay-1">
+      <form action="/news" method="get">
+        <i class="fas fa-search"></i>
+        <input type="text" name="search" placeholder="Search news articles..." 
+               value="{{ search_query if search_query }}">
+      </form>
     </div>
+
+    <!-- Featured Article -->
+    {% if news_articles and news_articles[0] %}
+    <a href="/news/{{ news_articles[0].id }}" style="text-decoration: none;">
+      <article class="featured-article fade-in delay-2">
+        <div class="featured-image">
+          <img src="{{ url_for('static', filename='uploads/profile_pics/' + news_articles[0].image) }}" 
+               alt="{{ news_articles[0].title }}">
+        </div>
+        <div class="featured-content">
+          <span class="featured-tag">Featured Story</span>
+          <h2 class="featured-title">{{ news_articles[0].title }}</h2>
+          <p class="featured-excerpt">{{ news_articles[0].content|truncate(200) }}</p>
+          <div class="featured-meta">
+            <span class="featured-author">By {{ news_articles[0].author.username }}</span>
+            <span class="featured-date">{{ news_articles[0].date_posted.strftime('%B %d, %Y') }}</span>
+          </div>
+        </div>
+      </article>
+    </a>
+    {% endif %}
 
     <!-- News Grid -->
     <div class="news-grid">
-      {% if news_articles %}
-        {% for article in news_articles %}
-        <article class="news-card">
-          <a href="/news/{{ article.id }}" style="text-decoration: none; color: inherit;">
+      {% if news_articles and news_articles|length > 1 %}
+        {% for article in news_articles[1:] %}
+        <a href="/news/{{ article.id }}" style="text-decoration: none;">
+          <article class="news-card fade-in delay-{{ loop.index % 3 }}">
             <div class="news-image">
               <img src="{{ url_for('static', filename='uploads/profile_pics/' + article.image) }}" 
                    alt="{{ article.title }}">
             </div>
             <div class="news-content">
-              <span class="news-category">{{ article.category }}</span>
               <h3 class="news-title">{{ article.title }}</h3>
               <p class="news-excerpt">{{ article.content|truncate(150) }}</p>
               <div class="news-meta">
@@ -246,19 +506,92 @@
                 <span>{{ article.date_posted.strftime('%b %d, %Y') }}</span>
               </div>
             </div>
-          </a>
-        </article>
+          </article>
+        </a>
         {% endfor %}
-      {% else %}
-        <div class="no-articles">
+      {% elif not news_articles %}
+        <div class="no-articles fade-in">
+          <i class="fas fa-newspaper"></i>
           <h3>No articles found</h3>
-          <p>Try a different search or category</p>
-          <a href="/news" class="category-btn">Show All News</a>
+          <p>Try a different search term or check back later for updates</p>
+          <a href="/news" class="load-btn">View All News</a>
         </div>
       {% endif %}
     </div>
+
+    {% if news_articles and news_articles|length > 7 %}
+    <div class="load-more fade-in">
+      <a href="#" class="load-btn">Load More Articles</a>
+    </div>
+    {% endif %}
   </div>
 
-  <!-- Include your existing footer here -->
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>About Us</h3>
+          <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/news">News</a></li>
+            <li><a href="/new_music">New Music Alert</a></li>
+            <li><a href="/charts">Charts</a></li>
+            <li><a href="/artists">Artists</a></li>
+            <li><a href="/vote">Vote</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Contact</h3>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+            <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+            <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // Animation on scroll
+    const fadeElements = document.querySelectorAll('.fade-in');
+    
+    const fadeInOnScroll = function() {
+      for (let i = 0; i < fadeElements.length; i++) {
+        const elem = fadeElements[i];
+        const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+        if (distInView < 0) {
+          elem.classList.add('in-view');
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', fadeInOnScroll);
+    fadeInOnScroll();
+  </script>
 </body>
 </html>

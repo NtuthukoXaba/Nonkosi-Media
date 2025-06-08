@@ -1,43 +1,501 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="container py-5">
-    <h1 class="mb-4">Voting Events</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting Events | Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+    }
     
-    <div class="row">
-        <div class="col-md-6">
-            <h2 class="mb-3">Current Voting</h2>
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--dark);
+      line-height: 1.6;
+      background-color: var(--light);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    .site-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo i {
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    .main-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 5px 0;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .main-nav a:hover {
+      color: var(--secondary);
+    }
+
+    .main-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .main-nav a:hover::after {
+      width: 100%;
+    }
+    
+    /* Page Content */
+    .page-content {
+      padding: 60px 0;
+    }
+    
+    .page-title {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 40px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: var(--secondary);
+    }
+    
+    .section-title {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 25px;
+      position: relative;
+      padding-bottom: 8px;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--secondary);
+    }
+    
+    /* Voting Events */
+    .events-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+    
+    @media (max-width: 576px) {
+      .events-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .event-column {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 600px; /* Fixed height for the container */
+    }
+    
+    .event-list-container {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+      margin-top: 15px;
+    }
+    
+    /* Custom scrollbar */
+    .event-list-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .event-list-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    .event-list-container::-webkit-scrollbar-thumb {
+      background: var(--secondary);
+      border-radius: 10px;
+    }
+    
+    .event-list-container::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
+    }
+    
+    .event-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .event-item {
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      background: var(--light-gray);
+      transition: all 0.3s;
+      border-left: 4px solid var(--secondary);
+    }
+    
+    .event-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--primary);
+    }
+    
+    .event-item a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    
+    .event-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+    
+    .event-date {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+    
+    .event-status {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    
+    .status-active {
+      background: rgba(25, 135, 84, 0.1);
+      color: #198754;
+    }
+    
+    .status-ended {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+    }
+    
+    /* No Events Message */
+    .no-events {
+      text-align: center;
+      padding: 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-top: 15px;
+    }
+    
+    .no-events i {
+      font-size: 3rem;
+      color: var(--secondary);
+      margin-bottom: 20px;
+    }
+    
+    .no-events h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    
+    /* Footer */
+    .site-footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 40px 0 20px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .footer-column h3 {
+      color: var(--secondary);
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-column a:hover {
+      color: var(--secondary);
+    }
+
+    .footer-social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .footer-social-links a {
+      color: white;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    .footer-social-links a:hover {
+      color: var(--secondary);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+      }
+      
+      .event-column {
+        height: auto;
+        max-height: 500px;
+      }
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="/" class="logo">
+        <i class="fas fa-music"></i> NONKOSI MEDIA
+      </a>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/news">News</a>
+        <a href="/new_music">New Music Alert</a>
+        <a href="/charts">Charts</a>
+        <a href="/artists">Artists</a>
+        <a href="/vote">Vote</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="container">
+      <h1 class="page-title fade-in">Voting Events</h1>
+      
+      <div class="events-container">
+        <!-- Current Voting -->
+        <div class="event-column fade-in">
+          <h2 class="section-title">Current Voting</h2>
+          <div class="event-list-container">
             {% if active_events %}
-                <div class="list-group">
-                    {% for event in active_events %}
-                    <a href="{{ url_for('view_voting_event', event_id=event.id) }}" 
-                       class="list-group-item list-group-item-action">
-                        <h5>{{ event.title }}</h5>
-                        <p>Ends: {{ event.end_date.strftime('%B %d, %Y') }}</p>
-                    </a>
-                    {% endfor %}
-                </div>
+            <ul class="event-list">
+              {% for event in active_events %}
+              <li class="event-item">
+                <a href="{{ url_for('view_voting_event', event_id=event.id) }}">
+                  <h3 class="event-title">{{ event.title }}</h3>
+                  <p class="event-date">Ends: {{ event.end_date.strftime('%B %d, %Y') }}</p>
+                  <span class="event-status status-active">Active</span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
             {% else %}
-                <div class="alert alert-info">No active voting events at this time</div>
+            <div class="no-events">
+              <i class="fas fa-calendar-times"></i>
+              <h3>No Active Voting</h3>
+              <p>There are currently no active voting events</p>
+            </div>
             {% endif %}
+          </div>
         </div>
         
-        <div class="col-md-6">
-            <h2 class="mb-3">Past Winners</h2>
+        <!-- Past Winners -->
+        <div class="event-column fade-in">
+          <h2 class="section-title">Past Winners</h2>
+          <div class="event-list-container">
             {% if past_events %}
-                <div class="list-group">
-                    {% for event in past_events %}
-                    <a href="{{ url_for('view_voting_event', event_id=event.id) }}" 
-                       class="list-group-item list-group-item-action">
-                        <h5>{{ event.title }}</h5>
-                        <p>Ended: {{ event.end_date.strftime('%B %d, %Y') }}</p>
-                    </a>
-                    {% endfor %}
-                </div>
+            <ul class="event-list">
+              {% for event in past_events %}
+              <li class="event-item">
+                <a href="{{ url_for('view_voting_event', event_id=event.id) }}">
+                  <h3 class="event-title">{{ event.title }}</h3>
+                  <p class="event-date">Ended: {{ event.end_date.strftime('%B %d, %Y') }}</p>
+                  <span class="event-status status-ended">Completed</span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
             {% else %}
-                <div class="alert alert-info">No past voting events</div>
+            <div class="no-events">
+              <i class="fas fa-trophy"></i>
+              <h3>No Past Events</h3>
+              <p>No voting events have been completed yet</p>
+            </div>
             {% endif %}
+          </div>
         </div>
+      </div>
     </div>
-</div>
-{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>About Us</h3>
+          <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+          <div class="footer-social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/news">News</a></li>
+            <li><a href="/new_music">New Music Alert</a></li>
+            <li><a href="/charts">Charts</a></li>
+            <li><a href="/artists">Artists</a></li>
+            <li><a href="/vote">Vote</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Contact</h3>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+            <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+            <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Animation on scroll
+    const fadeElements = document.querySelectorAll('.fade-in');
+    
+    const fadeInOnScroll = function() {
+      for (let i = 0; i < fadeElements.length; i++) {
+        const elem = fadeElements[i];
+        const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+        if (distInView < 0) {
+          elem.style.opacity = '1';
+          elem.style.transform = 'translateY(0)';
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', fadeInOnScroll);
+    fadeInOnScroll();
+  </script>
+</body>
+</html>

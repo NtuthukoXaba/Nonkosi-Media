@@ -395,6 +395,15 @@
       border-top: 1px solid rgba(255,255,255,0.1);
     }
 
+    .copyright p {
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .copyright p:hover {
+      color: var(--secondary);
+    }
+
     /* Modal Styles */
     .modal {
       display: none;
@@ -417,6 +426,12 @@
       max-width: 400px;
       text-align: center;
       position: relative;
+      animation: modalFadeIn 0.3s;
+    }
+
+    @keyframes modalFadeIn {
+      from {opacity: 0; transform: translateY(-50px);}
+      to {opacity: 1; transform: translateY(0);}
     }
 
     .modal-content h2 {
@@ -431,6 +446,7 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       font-family: 'Ubuntu', sans-serif;
+      font-size: 16px;
     }
 
     .modal-content button {
@@ -444,6 +460,8 @@
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.3s;
+      font-size: 16px;
+      margin-top: 10px;
     }
 
     .modal-content button:hover {
@@ -462,6 +480,12 @@
 
     .close-btn:hover {
       color: var(--primary);
+    }
+
+    #loginForm {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
 
     /* Responsive Styles */
@@ -493,6 +517,11 @@
       
       .section-title h2 {
         font-size: 1.8em;
+      }
+
+      .modal-content {
+        margin: 20% auto;
+        width: 90%;
       }
     }
 
@@ -629,7 +658,7 @@
     </div>
     <div class="release-grid">
       {% for gig in upcoming_gigs %}
-      <div class="release-card fade-in delay-{{ loop.index % 3 }}" style="background-color: rgba(255,255,255,0.1); color: white;">
+            <div class="release-card fade-in delay-{{ loop.index % 3 }}" style="background-color: rgba(255,255,255,0.1); color: white;">
         <img src="{{ url_for('static', filename='uploads/profile_pics/' + gig.artist.image) }}" alt="{{ gig.artist.name }}"/>
         <div class="release-info">
           <h3>{{ gig.artist.name }}</h3>
@@ -661,7 +690,7 @@
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/news">News</a></li>
-          <li><a href="/new_music">New Music</a></li>
+          <li><a href="/new_music">New Music Alert</a></li>
           <li><a href="/charts">Charts</a></li>
           <li><a href="/artists">Artists</a></li>
           <li><a href="/vote">Vote</a></li>
@@ -677,7 +706,9 @@
       </div>
     </div>
     <div class="copyright">
-      <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+      <p onclick="document.getElementById('loginModal').style.display='block'">
+        &copy; 2025 Nonkosi Media. All rights reserved.
+      </p>
     </div>
   </div>
 </footer>
@@ -687,9 +718,11 @@
   <div class="modal-content">
     <span class="close-btn" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
     <h2>Admin / Journalist Login</h2>
-    <input type="text" placeholder="Username" />
-    <input type="password" placeholder="Password" />
-    <button>Login</button>
+    <form id="loginForm" method="POST" action="/login">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
   </div>
 </div>
 
@@ -727,6 +760,38 @@
   
   window.addEventListener('scroll', fadeInOnScroll);
   fadeInOnScroll();
+
+  // Handle login form submission
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        // Success - redirect based on role
+        if (result.redirect) {
+          window.location.href = result.redirect;
+        }
+      } else {
+        // Error - show message
+        alert(result.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred during login');
+    }
+  });
 </script>
 
 </body>

@@ -212,15 +212,34 @@ def login():
 
         if user and check_password_hash(user.password, password):
             login_user(user)
-            if user.role == 'admin':
-                return redirect(url_for('admin_home'))
-            elif user.role == 'journalist':
-                return redirect(url_for('journalist_home'))
+            
+            # Return JSON response for AJAX requests
+            if request.headers.get('Accept') == 'application/json':
+                if user.role == 'admin':
+                    return jsonify({'success': True, 'redirect': url_for('admin_home')})
+                elif user.role == 'journalist':
+                    return jsonify({'success': True, 'redirect': url_for('journalist_home')})
+                else:
+                    return jsonify({'success': True, 'redirect': url_for('home')})
             else:
-                return redirect(url_for('home'))
+                # Regular form submission handling
+                if user.role == 'admin':
+                    return redirect(url_for('admin_home'))
+                elif user.role == 'journalist':
+                    return redirect(url_for('journalist_home'))
+                else:
+                    return redirect(url_for('home'))
         else:
-            flash('Invalid username or password', 'error')
-    return render_template('Login.html')
+            if request.headers.get('Accept') == 'application/json':
+                return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
+            else:
+                flash('Invalid username or password', 'error')
+    
+    # For GET requests or failed logins
+    if request.headers.get('Accept') == 'application/json':
+        return jsonify({'success': False, 'message': 'Login required'}), 401
+    else:
+        return render_template('Login.html')
 
 @app.route('/logout')
 @login_required

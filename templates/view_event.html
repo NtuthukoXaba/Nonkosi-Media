@@ -1,97 +1,601 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ event.title }} | Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+    }
+    
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--dark);
+      line-height: 1.6;
+      background-color: var(--light);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    .site-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
 
-{% block content %}
-<div class="container py-5">
-    <h1>{{ event.title }}</h1>
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo i {
+      margin-right: 10px;
+      font-size: 1.2em;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    .main-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 5px 0;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .main-nav a:hover {
+      color: var(--secondary);
+    }
+
+    .main-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .main-nav a:hover::after {
+      width: 100%;
+    }
     
-    {% if event.is_active and datetime.utcnow() < event.end_date %}
-        <div class="alert alert-info mb-4">
-            Voting ends: {{ event.end_date.strftime('%B %d, %Y at %H:%M') }}
-        </div>
-    {% else %}
-        <div class="alert alert-secondary mb-4">
-            This voting event has ended
-        </div>
-    {% endif %}
+    /* Page Content */
+    .page-content {
+      padding: 60px 0;
+    }
     
-    {% if winner %}
-        <div class="card mb-4">
-            <div class="card-header bg-success text-white">
-                <h4 class="mb-0">Winner</h4>
-            </div>
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    {% if event.category in ['song', 'song_of_year'] %}
-                        <img src="{{ url_for('static', filename='uploads/profile_pics/' + winner.cover_image) }}" 
-                             alt="{{ winner.title }}" width="80" class="rounded me-4">
-                        <div>
-                            <h3>{{ winner.title }}</h3>
-                            <p class="mb-1">by {{ winner.artist.name }}</p>
-                            <p class="text-muted">{{ winner.votes_received }} votes</p>
-                        </div>
-                    {% else %}
-                        <img src="{{ url_for('static', filename='uploads/profile_pics/' + winner.image) }}" 
-                             alt="{{ winner.name }}" width="80" class="rounded me-4">
-                        <div>
-                            <h3>{{ winner.name }}</h3>
-                            <p class="text-muted">{{ winner.votes_received }} votes</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    {% endif %}
+    .page-title {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+    }
     
-    <h3 class="mb-3">Options</h3>
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: var(--secondary);
+    }
     
-    {% if event.is_active and datetime.utcnow() < event.end_date %}
-        {% if has_voted %}
-            <div class="alert alert-warning">
-                You have already voted in this event
-            </div>
-        {% else %}
-            <form method="POST" action="{{ url_for('submit_vote', event_id=event.id) }}">
-        {% endif %}
-    {% endif %}
+    /* Alert Messages */
+    .alert {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        {% for option in options %}
-        <div class="col">
-            <div class="card h-100">
-                {% if event.category in ['song', 'song_of_year'] %}
-                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + option.song.cover_image) }}" 
-                         class="card-img-top" alt="{{ option.song.title }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ option.song.title }}</h5>
-                        <p class="card-text">by {{ option.song.artist.name }}</p>
-                        {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
-                            <button type="submit" name="option_id" value="{{ option.id }}" 
-                                    class="btn btn-primary">
-                                Vote
-                            </button>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + option.artist.image) }}" 
-                         class="card-img-top" alt="{{ option.artist.name }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ option.artist.name }}</h5>
-                        <p class="card-text">{{ option.artist.bio[:100] }}...</p>
-                        {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
-                            <button type="submit" name="option_id" value="{{ option.id }}" 
-                                    class="btn btn-primary">
-                                Vote
-                            </button>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
+    .alert-info {
+      background: rgba(23, 162, 184, 0.1);
+      border-left: 4px solid var(--info);
+      color: var(--dark);
+    }
+    
+    .alert-secondary {
+      background: rgba(108, 117, 125, 0.1);
+      border-left: 4px solid var(--gray);
+      color: var(--dark);
+    }
+    
+    .alert-warning {
+      background: rgba(255, 193, 7, 0.1);
+      border-left: 4px solid var(--warning);
+      color: var(--dark);
+    }
+    
+    /* Winner Card */
+    .winner-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+      border-left: 6px solid var(--success);
+    }
+    
+    .winner-header {
+      background: var(--success);
+      color: white;
+      padding: 15px 25px;
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+    
+    .winner-body {
+      padding: 25px;
+    }
+    
+    .winner-content {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+    
+    .winner-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .winner-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .winner-details h3 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    
+    .winner-meta {
+      color: var(--gray);
+      margin-bottom: 5px;
+    }
+    
+    .winner-votes {
+      display: inline-block;
+      padding: 5px 15px;
+      background: rgba(40, 167, 69, 0.1);
+      color: var(--success);
+      border-radius: 30px;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    
+    /* Options Section */
+    .options-title {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 25px;
+      position: relative;
+      padding-bottom: 8px;
+    }
+    
+    .options-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--secondary);
+    }
+    
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+    
+    .option-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+    
+    .option-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    
+    .option-image {
+      height: 200px;
+      overflow: hidden;
+    }
+    
+    .option-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .option-card:hover .option-image img {
+      transform: scale(1.05);
+    }
+    
+    .option-body {
+      padding: 20px;
+    }
+    
+    .option-title {
+      font-size: 1.3rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    
+    .option-meta {
+      color: var(--gray);
+      margin-bottom: 20px;
+    }
+    
+    .vote-btn {
+      display: inline-block;
+      padding: 10px 25px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 1rem;
+    }
+    
+    .vote-btn:hover {
+      background: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(11, 60, 93, 0.2);
+    }
+    
+    /* Footer */
+    .site-footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 40px 0 20px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .footer-column h3 {
+      color: var(--secondary);
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-column a:hover {
+      color: var(--secondary);
+    }
+
+    .footer-social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .footer-social-links a {
+      color: white;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    .footer-social-links a:hover {
+      color: var(--secondary);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .winner-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .winner-image {
+        width: 180px;
+        height: 180px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+      }
+      
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="/" class="logo">
+        <i class="fas fa-music"></i> NONKOSI MEDIA
+      </a>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/news">News</a>
+        <a href="/new_music">New Music Alert</a>
+        <a href="/charts">Charts</a>
+        <a href="/artists">Artists</a>
+        <a href="/vote">Vote</a>
+      </nav>
     </div>
-    
-    {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
+  </header>
+
+  <main class="page-content">
+    <div class="container">
+      <h1 class="page-title fade-in">{{ event.title }}</h1>
+      
+      {% if event.is_active and datetime.utcnow() < event.end_date %}
+        <div class="alert alert-info fade-in">
+          <i class="fas fa-clock"></i>
+          Voting ends: {{ event.end_date.strftime('%B %d, %Y at %H:%M') }}
+        </div>
+      {% else %}
+        <div class="alert alert-secondary fade-in">
+          <i class="fas fa-calendar-times"></i>
+          This voting event has ended
+        </div>
+      {% endif %}
+      
+      {% if winner %}
+        <div class="winner-card fade-in">
+          <div class="winner-header">
+            <i class="fas fa-trophy"></i> Winner
+          </div>
+          <div class="winner-body">
+            <div class="winner-content">
+              {% if event.category in ['song', 'song_of_year'] %}
+                <div class="winner-image">
+                  <img src="{{ url_for('static', filename='uploads/profile_pics/' + winner.cover_image) }}" 
+                       alt="{{ winner.title }}">
+                </div>
+                <div class="winner-details">
+                  <h3>{{ winner.title }}</h3>
+                  <p class="winner-meta">by {{ winner.artist.name }}</p>
+                  <span class="winner-votes">
+                    <i class="fas fa-heart"></i> {{ winner.votes_received }} votes
+                  </span>
+                </div>
+              {% else %}
+                <div class="winner-image">
+                  <img src="{{ url_for('static', filename='uploads/profile_pics/' + winner.image) }}" 
+                       alt="{{ winner.name }}">
+                </div>
+                <div class="winner-details">
+                  <h3>{{ winner.name }}</h3>
+                  <span class="winner-votes">
+                    <i class="fas fa-heart"></i> {{ winner.votes_received }} votes
+                  </span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      
+      <h3 class="options-title fade-in">Options</h3>
+      
+      {% if event.is_active and datetime.utcnow() < event.end_date %}
+        {% if has_voted %}
+          <div class="alert alert-warning fade-in">
+            <i class="fas fa-exclamation-circle"></i>
+            You have already voted in this event
+          </div>
+        {% else %}
+          <form method="POST" action="{{ url_for('submit_vote', event_id=event.id) }}" class="fade-in">
+        {% endif %}
+      {% endif %}
+      
+      <div class="options-grid">
+        {% for option in options %}
+          <div class="option-card fade-in">
+            {% if event.category in ['song', 'song_of_year'] %}
+              <div class="option-image">
+                <img src="{{ url_for('static', filename='uploads/profile_pics/' + option.song.cover_image) }}" 
+                     alt="{{ option.song.title }}">
+              </div>
+              <div class="option-body">
+                <h4 class="option-title">{{ option.song.title }}</h4>
+                <p class="option-meta">by {{ option.song.artist.name }}</p>
+                {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
+                  <button type="submit" name="option_id" value="{{ option.id }}" 
+                          class="vote-btn">
+                    <i class="fas fa-vote-yea"></i> Vote
+                  </button>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="option-image">
+                <img src="{{ url_for('static', filename='uploads/profile_pics/' + option.artist.image) }}" 
+                     alt="{{ option.artist.name }}">
+              </div>
+              <div class="option-body">
+                <h4 class="option-title">{{ option.artist.name }}</h4>
+                <p class="option-meta">{{ option.artist.bio[:100] }}...</p>
+                {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
+                  <button type="submit" name="option_id" value="{{ option.id }}" 
+                          class="vote-btn">
+                    <i class="fas fa-vote-yea"></i> Vote
+                  </button>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      
+      {% if event.is_active and datetime.utcnow() < event.end_date and not has_voted %}
         </form>
-    {% endif %}
-</div>
-{% endblock %}
+      {% endif %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>About Us</h3>
+          <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+          <div class="footer-social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/news">News</a></li>
+            <li><a href="/new_music">New Music Alert</a></li>
+            <li><a href="/charts">Charts</a></li>
+            <li><a href="/artists">Artists</a></li>
+            <li><a href="/vote">Vote</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Contact</h3>
+          <ul>
+            <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+            <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+            <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Animation on scroll
+    const fadeElements = document.querySelectorAll('.fade-in');
+    
+    const fadeInOnScroll = function() {
+      for (let i = 0; i < fadeElements.length; i++) {
+        const elem = fadeElements[i];
+        const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+        if (distInView < 0) {
+          elem.style.opacity = '1';
+          elem.style.transform = 'translateY(0)';
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', fadeInOnScroll);
+    fadeInOnScroll();
+  </script>
+</body>
+</html>
