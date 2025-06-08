@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard - Nonkosi Media</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
+      --primary: #0b3c5d;
       --secondary: #f22e3e;
-      --dark: #1e293b;
-      --light: #f8fafc;
-      --gray: #94a3b8;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #666;
       --light-gray: #e2e8f0;
       --success: #10b981;
       --warning: #f59e0b;
@@ -27,15 +27,15 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f1f5f9;
+      font-family: 'Ubuntu', sans-serif;
+      background-color: var(--light);
       color: var(--dark);
       line-height: 1.6;
     }
 
     .header {
-      background-color: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      background-color: var(--primary);
+      color: white;
       padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
@@ -43,15 +43,17 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .header .logo {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--secondary);
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      letter-spacing: 1px;
     }
 
     .logo i {
@@ -65,7 +67,7 @@
     }
 
     .nav-links a {
-      color: var(--dark);
+      color: white;
       text-decoration: none;
       font-weight: 500;
       font-size: 0.9rem;
@@ -73,10 +75,27 @@
       align-items: center;
       gap: 0.5rem;
       transition: color 0.2s;
+      padding: 5px 0;
+      position: relative;
     }
 
     .nav-links a:hover {
-      color: var(--primary);
+      color: var(--secondary);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
     }
 
     .nav-links a i {
@@ -94,11 +113,13 @@
       height: 36px;
       border-radius: 50%;
       object-fit: cover;
+      border: 2px solid var(--secondary);
     }
 
     .user-profile span {
       font-weight: 500;
       font-size: 0.9rem;
+      color: white;
     }
 
     .container {
@@ -114,7 +135,7 @@
     .welcome-section h1 {
       font-size: 1.75rem;
       font-weight: 700;
-      color: var(--dark);
+      color: var(--primary);
       margin-bottom: 0.5rem;
     }
 
@@ -134,13 +155,13 @@
       background-color: white;
       border-radius: 0.5rem;
       padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
     }
 
     .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
 
     .stat-card .header {
@@ -171,7 +192,7 @@
     .stat-card .value {
       font-size: 1.75rem;
       font-weight: 700;
-      color: var(--dark);
+      color: var(--primary);
       margin-bottom: 0.25rem;
     }
 
@@ -200,20 +221,20 @@
       background-color: white;
       border-radius: 0.5rem;
       padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
       cursor: pointer;
     }
 
     .dashboard-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
 
     .dashboard-card h3 {
       font-size: 1.1rem;
       font-weight: 600;
-      color: var(--dark);
+      color: var(--primary);
       margin-bottom: 1rem;
       display: flex;
       align-items: center;
@@ -221,7 +242,7 @@
     }
 
     .dashboard-card h3 i {
-      color: var(--primary);
+      color: var(--secondary);
       font-size: 1.25rem;
     }
 
@@ -235,18 +256,22 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background-color: var(--primary);
+      background-color: var(--secondary);
       color: white;
       padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
+      border-radius: 30px;
       font-size: 0.85rem;
       font-weight: 500;
       text-decoration: none;
-      transition: background-color 0.2s;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
     }
 
     .dashboard-card .btn:hover {
-      background-color: var(--primary-dark);
+      background-color: transparent;
+      color: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
     }
 
     .quick-actions {
@@ -263,19 +288,20 @@
       background-color: white;
       color: var(--dark);
       padding: 0.75rem 1.25rem;
-      border-radius: 0.5rem;
+      border-radius: 30px;
       font-size: 0.9rem;
       font-weight: 500;
       text-decoration: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: all 0.2s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
     }
 
     .quick-action-btn:hover {
-      background-color: var(--primary);
+      background-color: var(--secondary);
       color: white;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(242, 46, 62, 0.3);
     }
 
     .quick-action-btn i {
@@ -283,13 +309,13 @@
     }
 
     footer {
-      background-color: white;
+      background-color: var(--primary);
       padding: 1.5rem 2rem;
       margin-top: 3rem;
       text-align: center;
       font-size: 0.85rem;
-      color: var(--gray);
-      border-top: 1px solid var(--light-gray);
+      color: white;
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
 
     /* Recent Activity Section */
@@ -298,20 +324,20 @@
       background-color: white;
       border-radius: 0.5rem;
       padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
     .recent-activity h3 {
       font-size: 1.25rem;
       margin-bottom: 1.5rem;
-      color: var(--dark);
+      color: var(--primary);
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
 
     .recent-activity h3 i {
-      color: var(--primary);
+      color: var(--secondary);
     }
 
     .activity-list {
@@ -341,7 +367,7 @@
     }
 
     .activity-icon i {
-      color: var(--primary);
+      color: var(--secondary);
     }
 
     .activity-content {
@@ -351,6 +377,7 @@
     .activity-title {
       font-weight: 600;
       margin-bottom: 0.25rem;
+      color: var(--primary);
     }
 
     .activity-meta {
@@ -431,7 +458,7 @@
         <span>Journalists</span>
       </a>
       <div class="user-profile">
-        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Admin">
+        <img src="/static/uploads/profile_pics/IMG_20231016_190958~2.jpg" alt="Admin">
         <span>{{ current_user.username }}</span>
       </div>
       <a href="/logout">
@@ -537,7 +564,7 @@
       </div>
 
       <div class="dashboard-card" onclick="window.location.href='/admin/voting_events'">
-        <h3><i class="fas fa-vote-yea"></i> Voting Events</h3>
+                <h3><i class="fas fa-vote-yea"></i> Voting Events</h3>
         <p>Create and manage polls for Song & Artist of the Month.</p>
         <p><strong>{{ stats.total_votes }} total votes</strong></p>
         <a href="/admin/voting_events" class="btn">
@@ -551,7 +578,7 @@
         <p>Review and approve or reject news articles submitted by journalists.</p>
         <p><strong>{{ stats.published_articles }} published articles</strong></p>
         <a href="/admin/news" class="btn">
-                  <span>Manage News</span>
+          <span>Manage News</span>
           <i class="fas fa-arrow-right"></i>
         </a>
       </div>
