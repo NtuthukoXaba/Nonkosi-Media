@@ -3,212 +3,364 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Charts Manager - Nonkosi Media</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>Charts Manager - Nonkosi Media Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #666;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Ubuntu', sans-serif;
-      margin: 0;
-      background-color: #f4f4f4;
-      color: #333;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
     }
 
     .header {
-      background-color: #0b3c5d;
+      background-color: var(--primary);
       color: white;
-      padding: 15px 20px;
+      padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .header .logo {
-      font-size: 1.5em;
-      font-weight: bold;
-      color: #f22e3e;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .logo i {
+      color: var(--secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
     }
 
     .nav-links a {
       color: white;
       text-decoration: none;
-      margin-left: 20px;
       font-weight: 500;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+      padding: 5px 0;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--secondary);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-links a i {
+      font-size: 1rem;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-profile img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--secondary);
+    }
+
+    .user-profile span {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: white;
     }
 
     .container {
-      padding: 30px 20px;
-      max-width: 1200px;
-      margin: auto;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
-    h1 {
-      color: #0b3c5d;
-      margin-bottom: 20px;
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--secondary);
+      color: white;
+      padding: 0.5rem 1.25rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: transparent;
+      color: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
+    }
+
+    .btn i {
+      font-size: 0.9rem;
+    }
+
+    .btn-secondary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: transparent;
+      color: var(--primary);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background-color: transparent;
+      color: var(--danger);
     }
 
     .charts-container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 992px) {
+      .charts-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-box {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .chart-header {
       display: flex;
-      gap: 20px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
     }
 
-    .available-songs {
-      flex: 1;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    .chart-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
-    .top-chart {
-      flex: 2;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    .chart-title i {
+      color: var(--secondary);
     }
 
     .song-list {
-      min-height: 200px;
-      border: 2px dashed #ccc;
-      padding: 10px;
-      margin-top: 15px;
+      min-height: 300px;
+      border: 2px dashed var(--light-gray);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      transition: all 0.3s;
+    }
+
+    .song-list.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0,0,0,0.02);
+    }
+
+    .empty-message {
+      color: var(--gray);
+      text-align: center;
+      padding: 2rem;
+      font-style: italic;
     }
 
     .song-item {
       display: flex;
       align-items: center;
-      padding: 10px;
-      margin-bottom: 10px;
-      background: #f9f9f9;
-      border-radius: 5px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       cursor: move;
-      transition: all 0.2s ease;
+      transition: all 0.3s;
+      position: relative;
     }
 
     .song-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
-    /* Circular Image Styles */
     .song-item img {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       object-fit: cover;
-      margin-right: 15px;
       border-radius: 50%;
-      border: 2px solid #f22e3e;
-      transition: all 0.3s ease;
+      border: 2px solid var(--secondary);
+      margin-right: 1rem;
+      transition: all 0.3s;
     }
 
     .song-item:hover img {
       transform: scale(1.1);
-      box-shadow: 0 0 10px rgba(242, 46, 62, 0.5);
+      box-shadow: 0 0 10px rgba(242, 46, 62, 0.3);
     }
 
     .song-info {
       flex: 1;
+      min-width: 0;
     }
 
     .song-info h3 {
-      margin: 0 0 5px 0;
-      font-size: 1em;
-      color: #0b3c5d;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .song-info p {
-      margin: 0;
-      font-size: 0.85em;
-      color: #666;
-    }
-
-    .chart-position {
-      font-weight: bold;
-      margin-right: 15px;
-      color: #0b3c5d;
-      min-width: 30px;
-      text-align: center;
-      font-size: 1.1em;
-    }
-
-    .chart-actions {
-      margin-top: 20px;
-      text-align: right;
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-      background-color: #f22e3e;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background-color: #d61c2c;
-    }
-
-    .btn-secondary {
-      background-color: #0b3c5d;
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background-color: #092a42;
-    }
-
-    .btn-danger {
-      background-color: #dc3545;
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background-color: #bb2d3b;
-    }
-
-    .section-title {
-      font-size: 1.2em;
-      margin-bottom: 15px;
-      color: #0b3c5d;
-      border-bottom: 2px solid #f22e3e;
-      padding-bottom: 5px;
-    }
-
-    .empty-message {
-      color: #999;
-      text-align: center;
-      padding: 20px;
-      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-bottom: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .song-type {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 0.7em;
-      background: #e1e1e1;
-      color: #333;
-      margin-top: 5px;
+      padding: 0.15rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-top: 0.25rem;
     }
 
     .song-type.album {
-      background: #d4edda;
-      color: #155724;
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
     }
 
     .song-type.single {
-      background: #f8d7da;
-      color: #721c24;
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .song-position {
+      font-weight: 700;
+      color: var(--primary);
+      margin-right: 1rem;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .song-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+
+    .song-actions button {
+      background: none;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+      padding: 0.25rem;
+    }
+
+    .song-actions button:hover {
+      color: var(--secondary);
+    }
+
+    .chart-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--light-gray);
     }
 
     /* Modal styles */
@@ -227,67 +379,83 @@
     .modal-content {
       background-color: white;
       margin: 5% auto;
-      padding: 25px;
-      border-radius: 8px;
-      width: 80%;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      width: 90%;
       max-width: 600px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 25px rgba(0,0,0,0.2);
       position: relative;
       max-height: 90vh;
       overflow-y: auto;
     }
     
     .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
+      color: var(--gray);
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      font-size: 1.5rem;
       font-weight: bold;
       cursor: pointer;
-      position: absolute;
-      right: 20px;
-      top: 10px;
       transition: color 0.2s;
     }
     
     .close:hover {
-      color: #333;
+      color: var(--dark);
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .modal-title i {
+      color: var(--secondary);
     }
     
     .form-group {
-      margin-bottom: 15px;
+      margin-bottom: 1.25rem;
     }
     
     .form-group label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 0.5rem;
       font-weight: 500;
-      color: #0b3c5d;
+      color: var(--primary);
+      font-size: 0.9rem;
     }
     
     .form-group input[type="text"],
     .form-group input[type="url"],
     .form-group select,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group input[type="file"] {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      padding: 0.75rem;
+      border: 1px solid var(--light-gray);
+      border-radius: 0.5rem;
       font-family: 'Ubuntu', sans-serif;
-      transition: border 0.2s;
+      transition: all 0.3s;
+      font-size: 0.9rem;
     }
 
     .form-group input[type="text"]:focus,
     .form-group input[type="url"]:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-color: #0b3c5d;
+      border-color: var(--primary);
       outline: none;
+      box-shadow: 0 0 0 3px rgba(11, 60, 93, 0.1);
     }
 
-    /* Image preview in modal */
+    /* Image preview */
     .image-preview-container {
       text-align: center;
-      margin: 15px 0;
+      margin: 1rem 0;
     }
 
     .image-preview {
@@ -295,7 +463,7 @@
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid #0b3c5d;
+      border: 3px solid var(--primary);
       display: none;
       margin: 0 auto;
     }
@@ -303,93 +471,58 @@
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #eee;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--light-gray);
     }
     
-    /* Add song button */
-    .add-song-btn {
-      margin-bottom: 15px;
-      background-color: #0b3c5d;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    /* Song actions */
-    .song-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 5px;
-    }
-    
-    .song-actions button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #666;
-      font-size: 0.9em;
-      transition: color 0.2s;
-      padding: 5px;
-    }
-    
-    .song-actions button:hover {
-      color: #0b3c5d;
-    }
-
-    .flex-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
+    /* Artist select container */
     .artist-select-container {
       display: flex;
-      gap: 10px;
+      gap: 0.75rem;
       align-items: center;
     }
-
+    
     .artist-select-container select {
       flex: 1;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
     }
 
-    .artist-select-container button {
-      width: auto;
-      padding: 8px 12px;
-    }
-
-    /* Link fields styling */
+    /* Link fields */
     .link-field {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0.75rem;
     }
 
     .link-field i {
-      color: #0b3c5d;
-      font-size: 1.2em;
+      color: var(--primary);
+      font-size: 1.25rem;
     }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
-      .charts-container {
+      .header {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
       }
-      
-      .modal-content {
-        width: 90%;
-        margin: 10% auto;
-        padding: 15px;
+
+      .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
       }
 
       .artist-select-container {
@@ -397,8 +530,10 @@
         align-items: stretch;
       }
 
-      .artist-select-container button {
-        width: 100%;
+      .modal-content {
+        width: 95%;
+        margin: 2% auto;
+        padding: 1.5rem;
       }
     }
   </style>
@@ -406,30 +541,70 @@
 <body>
 
   <header class="header">
-    <div class="logo">Nonkosi Media</div>
+    <div class="logo">
+      <i class="fas fa-music"></i>
+      <span>Nonkosi Media</span>
+    </div>
     <nav class="nav-links">
-      <a href="/admin">Dashboard</a>
-      <a href="/admin/charts_manager" class="active">Charts Manager</a>
-      <a href="/logout">Logout</a>
+      <a href="/admin">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/upcoming_music">
+        <i class="fas fa-music"></i>
+        <span>New Music</span>
+      </a>
+      <a href="/admin/artists">
+        <i class="fas fa-user"></i>
+        <span>Artists</span>
+      </a>
+      <a href="/admin/charts_manager" class="active">
+        <i class="fas fa-chart-line"></i>
+        <span>Charts</span>
+      </a>
+      <a href="/admin/voting_events">
+        <i class="fas fa-vote-yea"></i>
+        <span>Voting</span>
+      </a>
+      <a href="/admin/news">
+        <i class="fas fa-newspaper"></i>
+        <span>News</span>
+      </a>
+      <a href="/admin/manage_journalists">
+        <i class="fas fa-users"></i>
+        <span>Journalists</span>
+      </a>
+      <div class="user-profile">
+        <img src="/static/uploads/profile_pics/IMG_20231016_190958~2.jpg" alt="Admin">
+        <span>{{ current_user.username }}</span>
+      </div>
+      <a href="/logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
     </nav>
   </header>
 
   <main class="container">
-    <h1>Maskandi Top 20 Charts Manager</h1>
+    <div class="page-header">
+      <h1 class="page-title">Maskandi Top 20 Charts Manager</h1>
+    </div>
     
     <div class="charts-container">
-      <div class="available-songs">
-        <div class="flex-header">
-          <h2 class="section-title">Available Songs</h2>
-          <button class="add-song-btn" id="addSongBtn">
-            <i class="fas fa-plus"></i> Add Song
+      <div class="chart-box">
+        <div class="chart-header">
+          <h2 class="chart-title">
+            <i class="fas fa-music"></i>
+            Available Songs
+          </h2>
+          <button class="btn" id="addSongBtn">
+            <i class="fas fa-plus"></i> Add
           </button>
         </div>
-        <div class="song-list" id="available-songs">
+        <div class="song-list" id="available-songs" {% if not all_songs %}class="empty"{% endif %}>
           {% for song in all_songs %}
             {% if song not in top_songs %}
             <div class="song-item" draggable="true" data-song-id="{{ song.id }}">
-              <span class="chart-position"></span>
               <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" 
                    alt="{{ song.title }}"
                    >
@@ -445,7 +620,7 @@
                   <i class="fas fa-edit"></i>
                 </button>
                 <button class="delete-song" data-song-id="{{ song.id }}" title="Delete">
-                  <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash"></i>
                 </button>
               </div>
             </div>
@@ -457,15 +632,19 @@
         </div>
       </div>
       
-      <div class="top-chart">
-        <h2 class="section-title">Top 20 Chart</h2>
-        <div class="song-list" id="top-chart">
+      <div class="chart-box">
+        <div class="chart-header">
+          <h2 class="chart-title">
+            <i class="fas fa-chart-line"></i>
+            Top 20 Chart
+          </h2>
+        </div>
+        <div class="song-list" id="top-chart" {% if not top_songs %}class="empty"{% endif %}>
           {% for song in top_songs %}
             <div class="song-item" draggable="true" data-song-id="{{ song.id }}">
-              <span class="chart-position">{{ song.chart_position }}</span>
+              <span class="song-position">{{ song.chart_position }}</span>
               <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" 
-                   alt="{{ song.title }}"
-                   >
+                   alt="{{ song.title }}">
               <div class="song-info">
                 <h3>{{ song.title }}</h3>
                 <p>{{ song.artist.name }}</p>
@@ -489,8 +668,12 @@
         </div>
         
         <div class="chart-actions">
-          <button class="btn btn-secondary" id="reset-chart">Reset Chart</button>
-          <button class="btn btn-primary" id="save-chart">Save Changes</button>
+          <button class="btn btn-secondary" id="reset-chart">
+            <i class="fas fa-undo"></i> Reset Chart
+          </button>
+          <button class="btn" id="save-chart">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
         </div>
       </div>
     </div>
@@ -500,7 +683,10 @@
   <div id="songModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
-      <h2 id="modalTitle">Add New Song</h2>
+      <h2 class="modal-title">
+        <i class="fas fa-music"></i>
+        <span id="modalTitle">Add New Song</span>
+      </h2>
       <form id="songForm">
         <input type="hidden" id="songId">
         
@@ -518,7 +704,9 @@
               <option value="{{ artist.id }}">{{ artist.name }}</option>
               {% endfor %}
             </select>
-            <button type="button" id="newArtistBtn" class="btn btn-secondary">+ New</button>
+            <button type="button" id="newArtistBtn" class="btn btn-secondary">
+              <i class="fas fa-plus"></i> New
+            </button>
           </div>
           <input type="hidden" id="artist_id" name="artist_id">
         </div>
@@ -556,18 +744,25 @@
         </div>
         
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Song</button>
+          <button type="button" class="btn btn-secondary" id="cancelBtn">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn">
+            <i class="fas fa-save"></i> Save Song
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-    <!-- Artist Form Modal -->
+  <!-- Artist Form Modal -->
   <div id="artistModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
-      <h2>Add New Artist</h2>
+      <h2 class="modal-title">
+        <i class="fas fa-user"></i>
+        Add New Artist
+      </h2>
       <form id="artistForm">
         <div class="form-group">
           <label for="artist_name">Artist Name *</label>
@@ -578,8 +773,12 @@
           <textarea id="artist_bio" rows="3"></textarea>
         </div>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" id="cancelArtistBtn">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Artist</button>
+          <button type="button" class="btn btn-secondary" id="cancelArtistBtn">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn">
+            <i class="fas fa-save"></i> Save Artist
+          </button>
         </div>
       </form>
     </div>
@@ -588,13 +787,22 @@
   <!-- Delete Confirmation Modal -->
   <div id="confirmModal" class="modal">
     <div class="modal-content">
+      <span class="close">&times;</span>
       <p id="confirmMessage">Are you sure you want to delete this song? This action cannot be undone.</p>
       <div class="modal-actions">
-        <button id="confirmCancel" class="btn btn-secondary">Cancel</button>
-        <button id="confirmDelete" class="btn btn-danger">Delete</button>
+        <button id="confirmCancel" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button id="confirmDelete" class="btn btn-danger">
+          <i class="fas fa-trash"></i> Delete
+        </button>
       </div>
     </div>
   </div>
+
+  <footer>
+    <p>© {{ datetime.now().year }} Nonkosi Media. All rights reserved.</p>
+  </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -689,7 +897,7 @@
                 
                 // Show current image if exists
                 if (song.cover_image && song.cover_image !== 'default_song.jpg') {
-                  imagePreview.src = `/static/uploads/${song.cover_image}`;
+                  imagePreview.src = `/static/uploads/profile_pics/${song.cover_image}`;
                   imagePreview.style.display = 'block';
                 } else {
                   imagePreview.style.display = 'none';
@@ -896,13 +1104,13 @@
       function updateChartPositions() {
         const chartItems = topChart.querySelectorAll('.song-item');
         chartItems.forEach((item, index) => {
-          const positionElement = item.querySelector('.chart-position');
+          const positionElement = item.querySelector('.song-position');
           if (positionElement) {
             positionElement.textContent = index + 1;
           } else {
             // Create position element if it doesn't exist
             const posSpan = document.createElement('span');
-            posSpan.className = 'chart-position';
+            posSpan.className = 'song-position';
             posSpan.textContent = index + 1;
             item.insertBefore(posSpan, item.firstChild);
           }
@@ -933,7 +1141,7 @@
           if (data.success) {
             alert('Chart updated successfully!');
             window.location.reload();
-          } else {
+                    } else {
             alert('Error: ' + data.message);
           }
         })
@@ -974,15 +1182,6 @@
         if (e.target === confirmModal) {
           confirmModal.style.display = 'none';
         }
-      });
-
-      // Handle image errors globally
-      document.querySelectorAll('img').forEach(img => {
-        img.onerror = function() {
-          if (!this.src.includes('default_song.jpg')) {
-            this.src = "{{ url_for('static', filename='images/default_song.jpg') }}";
-          }
-        };
       });
 
       // Add animation when dragging
