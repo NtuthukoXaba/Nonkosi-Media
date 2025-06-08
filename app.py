@@ -759,6 +759,7 @@ def view_voting_event(event_id):
                          options=options,
                          has_voted=has_voted,
                          winner=winner)
+                         
 
 @app.route('/vote/submit/<int:event_id>', methods=['POST'])
 def submit_vote(event_id):
@@ -1232,7 +1233,7 @@ def admin_edit_article(article_id):
             
             db.session.commit()
             flash('Article updated successfully!', 'success')
-            return redirect(url_for('admin_news'))
+            return redirect(url_for('admin_news')) 
         
         except Exception as e:
             db.session.rollback()

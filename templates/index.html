@@ -13,6 +13,7 @@
       --dark: #222;
       --light: #f5f5f5;
       --accent: #103b6f;
+      --gray: #666;
     }
     
     body {
@@ -46,24 +47,29 @@
       align-items: center;
     }
 
-    .logo {
-      font-size: 2em;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--secondary);
-      text-decoration: none;
+    .logo-container {
       display: flex;
       align-items: center;
+      gap: 15px;
     }
 
-    .logo i {
-      margin-right: 10px;
-      font-size: 1.2em;
+    .logo-img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      font-size: 1.5em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: white;
+      text-decoration: none;
     }
 
     .main-nav {
       display: flex;
-      gap: 20px;
+      gap: 25px;
     }
 
     .main-nav a {
@@ -73,6 +79,7 @@
       padding: 5px 0;
       position: relative;
       transition: color 0.3s;
+      font-size: 0.95rem;
     }
 
     .main-nav a:hover {
@@ -115,30 +122,30 @@
       z-index: 0;
     }
 
-    .hero .container {
+    .hero-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       position: relative;
       z-index: 1;
+      gap: 40px;
     }
 
     .hero-text {
       flex: 1;
       min-width: 300px;
-      padding-right: 40px;
     }
 
     .hero-text h1 {
-      font-size: 2.8em;
+      font-size: 2.5rem;
       margin-bottom: 20px;
       line-height: 1.2;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
     }
 
     .hero-text p {
-      font-size: 1.1em;
+      font-size: 1.1rem;
       margin-bottom: 30px;
       max-width: 500px;
     }
@@ -153,6 +160,7 @@
       font-weight: 500;
       transition: all 0.3s;
       border: 2px solid var(--secondary);
+      font-size: 0.95rem;
     }
 
     .btn:hover {
@@ -162,40 +170,42 @@
       box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
     }
 
-    .hero-img {
+    .hero-media {
       flex: 1;
       min-width: 300px;
-      text-align: center;
+      display: flex;
+      justify-content: center;
     }
 
-    .hero-img img {
-      max-width: 100%;
+    .hero-logo {
+      max-width: 350px;
+      width: 100%;
       height: auto;
-      border-radius: 10px;
+      border-radius: 8px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
       transition: transform 0.5s;
     }
 
-    .hero-img:hover img {
+    .hero-media:hover .hero-logo {
       transform: scale(1.03);
     }
 
     /* Section Styles */
     .section {
-      padding: 60px 0;
+      padding: 80px 0;
     }
 
     .section-title {
       text-align: center;
       margin-bottom: 50px;
-      position: relative;
     }
 
     .section-title h2 {
-      font-size: 2.2em;
+      font-size: 2rem;
       color: var(--primary);
-      display: inline-block;
       margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
     }
 
     .section-title h2::after {
@@ -214,7 +224,7 @@
 
     .release-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 30px;
     }
 
@@ -248,13 +258,14 @@
 
     .release-info h3 {
       margin: 0 0 10px;
-      font-size: 1.3em;
+      font-size: 1.2rem;
       color: var(--primary);
     }
 
     .release-info p {
       margin: 0 0 15px;
-      color: #666;
+      color: var(--gray);
+      font-size: 0.95rem;
     }
 
     .release-links {
@@ -267,11 +278,14 @@
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .release-links a:hover {
       color: var(--primary);
-      text-decoration: underline;
     }
 
     /* Charts Section */
@@ -319,39 +333,100 @@
       color: var(--primary);
       margin-right: 15px;
       min-width: 30px;
+      font-size: 1.1rem;
     }
 
     .chart-song {
       flex-grow: 1;
     }
 
+    .chart-song strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
     .chart-artist {
-      color: #666;
+      color: var(--gray);
       font-style: italic;
+      font-size: 0.9rem;
     }
 
     .view-all {
       text-align: center;
     }
 
+    /* Upcoming Events */
+    .events {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .event-card {
+      background-color: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-5px);
+      background-color: rgba(255,255,255,0.15);
+    }
+
+    .event-info {
+      padding: 20px;
+    }
+
+    .event-info h3 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .event-info p {
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
     /* Footer */
     .site-footer {
       background-color: var(--primary);
       color: white;
-      padding: 40px 0 20px;
+      padding: 60px 0 30px;
     }
 
     .footer-content {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 30px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
     }
 
     .footer-column h3 {
       color: var(--secondary);
       margin-bottom: 20px;
-      font-size: 1.2em;
+      font-size: 1.2rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .footer-column h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background-color: var(--secondary);
+    }
+
+    .footer-column p, 
+    .footer-column ul {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.95rem;
+      line-height: 1.6;
     }
 
     .footer-column ul {
@@ -360,7 +435,7 @@
     }
 
     .footer-column ul li {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .footer-column a {
@@ -376,31 +451,42 @@
     .social-links {
       display: flex;
       gap: 15px;
-      margin-top: 15px;
+      margin-top: 20px;
     }
 
     .social-links a {
       color: white;
-      font-size: 1.2em;
+      font-size: 1.2rem;
       transition: color 0.3s;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .social-links a:hover {
       color: var(--secondary);
+      background-color: rgba(255,255,255,0.2);
     }
 
     .copyright {
       text-align: center;
-      padding-top: 20px;
+      padding-top: 30px;
       border-top: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
     }
 
-    .copyright p {
-      cursor: pointer;
+    .copyright a {
+      color: white;
+      text-decoration: none;
       transition: color 0.3s;
     }
 
-    .copyright p:hover {
+    .copyright a:hover {
       color: var(--secondary);
     }
 
@@ -482,17 +568,27 @@
       color: var(--primary);
     }
 
-    #loginForm {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .hero-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .hero-text {
+        margin-bottom: 40px;
+      }
+      
+      .hero-text p {
+        margin-left: auto;
+        margin-right: auto;
+      }
     }
 
-    /* Responsive Styles */
     @media (max-width: 768px) {
       .header-content {
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
       }
       
       .main-nav {
@@ -500,56 +596,47 @@
         justify-content: center;
       }
       
-      .hero .container {
-        flex-direction: column;
-      }
-      
-      .hero-text {
-        padding-right: 0;
-        margin-bottom: 30px;
-        text-align: center;
-      }
-      
-      .hero-text p {
-        margin-left: auto;
-        margin-right: auto;
+      .section {
+        padding: 60px 0;
       }
       
       .section-title h2 {
-        font-size: 1.8em;
-      }
-
-      .modal-content {
-        margin: 20% auto;
-        width: 90%;
+        font-size: 1.8rem;
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 576px) {
       .hero {
         padding: 60px 0;
       }
       
       .hero-text h1 {
-        font-size: 2em;
+        font-size: 2rem;
       }
       
       .btn {
-        padding: 10px 20px;
+        padding: 10px 25px;
       }
       
       .release-grid {
         grid-template-columns: 1fr;
       }
+      
+      .modal-content {
+        margin: 20% auto;
+        width: 90%;
+        padding: 20px;
+      }
     }
 
-    /* Animation */
+    /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .fade-in {
+      opacity: 0;
       animation: fadeIn 0.8s ease-out forwards;
     }
 
@@ -564,6 +651,15 @@
     .delay-3 {
       animation-delay: 0.6s;
     }
+
+    /* Utility Classes */
+    .text-center {
+      text-align: center;
+    }
+    
+    .mt-4 {
+      margin-top: 2rem;
+    }
   </style>
 </head>
 <body>
@@ -571,13 +667,16 @@
 <!-- Header -->
 <header class="site-header">
   <div class="container header-content">
-    <a href="/" class="logo">
-      <i class="fas fa-music"></i> NONKOSI MEDIA
-    </a>
+    <div class="logo-container">
+      <img src="{{ url_for('static', filename='uploads/profile_pics/NonkosiLogopng.png') }}" 
+           alt="Nonkosi Media Logo" 
+           class="logo-img"/>
+      <a href="/" class="logo-text">NONKOSI MEDIA</a>
+    </div>
     <nav class="main-nav">
       <a href="/">Home</a>
       <a href="/news">News</a>
-      <a href="/new_music">New Music Alert</a>
+      <a href="/new_music">New Music</a>
       <a href="/charts">Charts</a>
       <a href="/artists">Artists</a>
       <a href="/vote">Vote</a>
@@ -587,14 +686,16 @@
 
 <!-- Hero Section -->
 <section class="hero">
-  <div class="container">
+  <div class="container hero-content">
     <div class="hero-text fade-in">
       <h1>CELEBRATING THE SOUL OF MASKANDI MUSIC</h1>
       <p>Discover the latest hits, upcoming releases, and exclusive content from your favorite Maskandi artists.</p>
       <a href="/artists" class="btn">Explore Artists</a>
     </div>
-    <div class="hero-img fade-in delay-1">
-      <img src="{{ url_for('static', filename='images/hero-maskandi.jpg') }}" alt="Maskandi Artist Performance"/>
+    <div class="hero-media fade-in delay-1">
+      <img src="{{ url_for('static', filename='uploads/profile_pics/NonkosiLogopng.png') }}" 
+           alt="Nonkosi Media" 
+           class="hero-logo"/>
     </div>
   </div>
 </section>
@@ -650,17 +751,17 @@
   </div>
 </section>
 
-<!-- Upcoming Events Section -->
-<section class="section" style="background-color: var(--primary); color: white;">
+<!-- Upcoming Events -->
+<section class="section events">
   <div class="container">
     <div class="section-title">
-      <h2 style="color: white;">Upcoming Events</h2>
+      <h2>Upcoming Events</h2>
     </div>
     <div class="release-grid">
       {% for gig in upcoming_gigs %}
-            <div class="release-card fade-in delay-{{ loop.index % 3 }}" style="background-color: rgba(255,255,255,0.1); color: white;">
+      <div class="event-card fade-in delay-{{ loop.index % 3 }}">
         <img src="{{ url_for('static', filename='uploads/profile_pics/' + gig.artist.image) }}" alt="{{ gig.artist.name }}"/>
-        <div class="release-info">
+        <div class="event-info">
           <h3>{{ gig.artist.name }}</h3>
           <p><i class="fas fa-map-marker-alt"></i> {{ gig.venue }}, {{ gig.city }}</p>
           <p><i class="fas fa-calendar-alt"></i> {{ gig.date.strftime('%B %d, %Y') }}</p>
@@ -690,7 +791,7 @@
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/news">News</a></li>
-          <li><a href="/new_music">New Music Alert</a></li>
+          <li><a href="/new_music">New Music</a></li>
           <li><a href="/charts">Charts</a></li>
           <li><a href="/artists">Artists</a></li>
           <li><a href="/vote">Vote</a></li>
@@ -706,18 +807,18 @@
       </div>
     </div>
     <div class="copyright">
-      <p onclick="document.getElementById('loginModal').style.display='block'">
+      <a href="#" onclick="document.getElementById('loginModal').style.display='block'">
         &copy; 2025 Nonkosi Media. All rights reserved.
-      </p>
+      </a>
     </div>
   </div>
 </footer>
 
-<!-- Hidden Login Modal -->
+<!-- Login Modal -->
 <div id="loginModal" class="modal">
   <div class="modal-content">
     <span class="close-btn" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
-    <h2>Admin / Journalist Login</h2>
+    <h2>Admin Login</h2>
     <form id="loginForm" method="POST" action="/login">
       <input type="text" name="username" placeholder="Username" required />
       <input type="password" name="password" placeholder="Password" required />
@@ -727,23 +828,13 @@
 </div>
 
 <script>
-  // Close modal on outside click
+  // Close modal when clicking outside
   window.onclick = function(event) {
     const modal = document.getElementById('loginModal');
     if (event.target === modal) {
       modal.style.display = "none";
     }
   };
-
-  // Add smooth scrolling to all links
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      document.querySelector(this.getAttribute('href')).scrollIntoView({
-        behavior: 'smooth'
-      });
-    });
-  });
 
   // Animation on scroll
   const fadeElements = document.querySelectorAll('.fade-in');
@@ -779,12 +870,10 @@
       const result = await response.json();
       
       if (response.ok) {
-        // Success - redirect based on role
         if (result.redirect) {
           window.location.href = result.redirect;
         }
       } else {
-        // Error - show message
         alert(result.message || 'Login failed');
       }
     } catch (error) {
@@ -793,6 +882,5 @@
     }
   });
 </script>
-
 </body>
 </html>
