@@ -1,40 +1,313 @@
-{% extends "admin_base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Upcoming Music - Nonkosi Media Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #666;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
 
-{% block content %}
-<div class="container">
-    <h1>Add Upcoming Music</h1>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .logo i {
+      color: var(--secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+      padding: 5px 0;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--secondary);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-links a i {
+      font-size: 1rem;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-profile img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--secondary);
+    }
+
+    .user-profile span {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--light-gray);
+      border-radius: 0.375rem;
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(242, 46, 62, 0.2);
+    }
+
+    .form-control[type="file"] {
+      padding: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--secondary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: transparent;
+      color: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
+    }
+
+    footer {
+      background-color: var(--primary);
+      padding: 1.5rem 2rem;
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: white;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <i class="fas fa-music"></i>
+      <span>Nonkosi Media</span>
+    </div>
+    <nav class="nav-links">
+      <a href="/admin">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/upcoming_music" class="active">
+        <i class="fas fa-music"></i>
+        <span>New Music</span>
+      </a>
+      <a href="/admin/artists">
+        <i class="fas fa-user"></i>
+        <span>Artists</span>
+      </a>
+      <a href="/admin/charts_manager">
+        <i class="fas fa-chart-line"></i>
+        <span>Charts</span>
+      </a>
+      <a href="/admin/voting_events">
+        <i class="fas fa-vote-yea"></i>
+        <span>Voting</span>
+      </a>
+      <a href="/admin/news">
+        <i class="fas fa-newspaper"></i>
+        <span>News</span>
+      </a>
+      <a href="/admin/manage_journalists">
+        <i class="fas fa-users"></i>
+        <span>Journalists</span>
+      </a>
+      <div class="user-profile">
+        <img src="/static/uploads/profile_pics/IMG_20231016_190958~2.jpg" alt="Admin">
+        <span>{{ current_user.username }}</span>
+      </div>
+      <a href="/logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">Add Upcoming Music</h1>
     
     <form method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="title">Song Title</label>
-            <input type="text" class="form-control" id="title" name="title" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="artist_id">Artist</label>
-            <select class="form-control" id="artist_id" name="artist_id" required>
-                {% for artist in artists %}
-                <option value="{{ artist.id }}">{{ artist.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="album">Album (if applicable)</label>
-            <input type="text" class="form-control" id="album" name="album">
-        </div>
-        
-        <div class="form-group">
-            <label for="release_date">Release Date</label>
-            <input type="date" class="form-control" id="release_date" name="release_date" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="cover_image">Cover Image</label>
-            <input type="file" class="form-control" id="cover_image" name="cover_image">
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Add Upcoming Music</button>
+      <div class="form-group">
+        <label for="title">Song Title</label>
+        <input type="text" class="form-control" id="title" name="title" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="artist_id">Artist</label>
+        <select class="form-control" id="artist_id" name="artist_id" required>
+          {% for artist in artists %}
+          <option value="{{ artist.id }}">{{ artist.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="album">Album (if applicable)</label>
+        <input type="text" class="form-control" id="album" name="album">
+      </div>
+      
+      <div class="form-group">
+        <label for="release_date">Release Date</label>
+        <input type="date" class="form-control" id="release_date" name="release_date" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="cover_image">Cover Image</label>
+        <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*">
+      </div>
+      
+      <button type="submit" class="btn">
+        <i class="fas fa-plus"></i> Add Upcoming Music
+      </button>
     </form>
-</div>
-{% endblock %}
+  </main>
+
+  <footer>
+    <p>© {{ datetime.now().year }} Nonkosi Media. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

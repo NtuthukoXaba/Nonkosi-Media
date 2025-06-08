@@ -1,117 +1,479 @@
-{% extends "admin_base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upcoming Music - Nonkosi Media Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #666;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
 
-{% block content %}
-<div class="container">
-    <h1 class="mb-4">Upcoming Music Releases</h1>
-    
-    <div class="d-flex justify-content-between mb-4">
-        <a href="{{ url_for('add_upcoming_music') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add New Release
-        </a>
-        <div class="text-muted">
-            Showing {{ upcoming_music|length }} upcoming releases
-        </div>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .logo i {
+      color: var(--secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+      padding: 5px 0;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--secondary);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-links a i {
+      font-size: 1rem;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-profile img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--secondary);
+    }
+
+    .user-profile span {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--secondary);
+      color: white;
+      padding: 0.5rem 1.25rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
+    }
+
+    .btn:hover {
+      background-color: transparent;
+      color: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
+    }
+
+    .btn i {
+      font-size: 0.9rem;
+    }
+
+    .music-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .music-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+
+    .music-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .music-cover {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .music-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .music-content {
+      padding: 1.25rem;
+    }
+
+    .music-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .music-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .music-meta i {
+      color: var(--secondary);
+    }
+
+    .music-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      background-color: rgba(0,0,0,0.02);
+      border-top: 1px solid var(--light-gray);
+    }
+
+    .music-date {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 0.2s;
+    }
+
+    .delete-btn:hover {
+      color: darkred;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+
+    footer {
+      background-color: var(--primary);
+      padding: 1.5rem 2rem;
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: white;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .music-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <i class="fas fa-music"></i>
+      <span>Nonkosi Media</span>
+    </div>
+    <nav class="nav-links">
+      <a href="/admin">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/upcoming_music" class="active">
+        <i class="fas fa-music"></i>
+        <span>New Music</span>
+      </a>
+      <a href="/admin/artists">
+        <i class="fas fa-user"></i>
+        <span>Artists</span>
+      </a>
+      <a href="/admin/charts_manager">
+        <i class="fas fa-chart-line"></i>
+        <span>Charts</span>
+      </a>
+      <a href="/admin/voting_events">
+        <i class="fas fa-vote-yea"></i>
+        <span>Voting</span>
+      </a>
+      <a href="/admin/news">
+        <i class="fas fa-newspaper"></i>
+        <span>News</span>
+      </a>
+      <a href="/admin/manage_journalists">
+        <i class="fas fa-users"></i>
+        <span>Journalists</span>
+      </a>
+      <div class="user-profile">
+        <img src="/static/uploads/profile_pics/IMG_20231016_190958~2.jpg" alt="Admin">
+        <span>{{ current_user.username }}</span>
+      </div>
+      <a href="/logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1 class="page-title">Upcoming Music Releases</h1>
+      <a href="{{ url_for('add_upcoming_music') }}" class="btn">
+        <i class="fas fa-plus"></i> Add New Release
+      </a>
     </div>
 
     {% if upcoming_music %}
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for music in upcoming_music %}
-        <div class="col">
-            <div class="card h-100 shadow-sm">
-                <div class="position-relative">
-                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + music.cover_image) }}" 
-                         class="card-img-top music-cover"
-                         alt="{{ music.title }}">
-                    <div class="position-absolute top-0 end-0 m-2">
-                        <span class="badge bg-dark">
-                            {{ music.release_date.strftime('%b %d') }}
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-body">
-                    <h5 class="card-title">{{ music.title }}</h5>
-                    <p class="card-text text-muted mb-1">
-                        <i class="fas fa-user"></i> {{ music.artist.name }}
-                    </p>
-                    {% if music.album %}
-                    <p class="card-text text-muted mb-1">
-                        <i class="fas fa-compact-disc"></i> {{ music.album }}
-                    </p>
-                    {% endif %}
-                    <p class="card-text small text-muted mt-2">
-                        <i class="fas fa-calendar-plus"></i> Added {{ music.date_added.strftime('%b %d, %Y') }}
-                    </p>
-                </div>
-                
-                <div class="card-footer bg-white border-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-light text-dark">
-                            {% set diff = (music.release_date - datetime.utcnow()).days %}
-                            {% if diff > 0 %}
-                                {{ diff }} days left
-                            {% elif diff == 0 %}
-                                Releases today!
-                            {% else %}
-                                Released
-                            {% endif %}
-                        </span>
-                        <button data-music-id="{{ music.id }}" 
-                                class="btn btn-outline-danger btn-sm delete-music-btn"
-                                title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <div class="music-grid">
+      {% for music in upcoming_music %}
+      <div class="music-card">
+        <div class="music-cover-container">
+          <img src="{{ url_for('static', filename='uploads/profile_pics/' + music.cover_image) }}" 
+               class="music-cover"
+               alt="{{ music.title }}">
+          <span class="music-badge">
+            {{ music.release_date.strftime('%b %d') }}
+          </span>
         </div>
-        {% endfor %}
+        
+        <div class="music-content">
+          <h3 class="music-title">{{ music.title }}</h3>
+          <div class="music-meta">
+            <i class="fas fa-user"></i>
+            <span>{{ music.artist.name }}</span>
+          </div>
+          {% if music.album %}
+          <div class="music-meta">
+            <i class="fas fa-compact-disc"></i>
+            <span>{{ music.album }}</span>
+          </div>
+          {% endif %}
+        </div>
+        
+        <div class="music-footer">
+          <span class="music-date">
+            {% set diff = (music.release_date - datetime.utcnow()).days %}
+            {% if diff > 0 %}
+              {{ diff }} days left
+            {% elif diff == 0 %}
+              Releases today!
+            {% else %}
+              Released
+            {% endif %}
+          </span>
+          <button class="delete-btn" data-music-id="{{ music.id }}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
     </div>
     {% else %}
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> No upcoming music releases found.
+    <div class="empty-state">
+      <i class="fas fa-music"></i>
+      <h3>No Upcoming Releases</h3>
+      <p>There are currently no upcoming music releases scheduled.</p>
+      <a href="{{ url_for('add_upcoming_music') }}" class="btn">
+        <i class="fas fa-plus"></i> Add New Release
+      </a>
     </div>
     {% endif %}
-</div>
+  </main>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Add event listeners to all delete buttons
-    document.querySelectorAll('.delete-music-btn').forEach(function(button) {
+  <footer>
+    <p>© {{ datetime.now().year }} Nonkosi Media. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add event listeners to all delete buttons
+      document.querySelectorAll('.delete-btn').forEach(function(button) {
         button.addEventListener('click', function() {
-            const musicId = this.getAttribute('data-music-id');
-            deleteUpcomingMusic(musicId);
+          const musicId = this.getAttribute('data-music-id');
+          deleteUpcomingMusic(musicId);
         });
-    });
+      });
 
-    function deleteUpcomingMusic(musicId) {
+      function deleteUpcomingMusic(musicId) {
         if (confirm('Are you sure you want to delete this upcoming release? This action cannot be undone.')) {
-            fetch('/admin/delete_upcoming_music/' + musicId, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(function(response) {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(function(data) {
-                if (data.success) {
-                    showToast('Release deleted successfully', 'success');
-                    setTimeout(function() { location.reload(); }, 1000);
-                } else {
-                    showToast(data.message || 'Error deleting release', 'danger');
-                }
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-                showToast('Error deleting release', 'danger');
-            });
+          fetch('/admin/delete_upcoming_music/' + musicId, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(function(response) {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+          })
+          .then(function(data) {
+            if (data.success) {
+              showToast('Release deleted successfully', 'success');
+              setTimeout(function() { location.reload(); }, 1000);
+            } else {
+              showToast(data.message || 'Error deleting release', 'danger');
+            }
+          })
+          .catch(function(error) {
+            console.error('Error:', error);
+            showToast('Error deleting release', 'danger');
+          });
         }
-    }
+      }
 
-    function showToast(message, type) {
+      function showToast(message, type) {
         const toast = document.createElement('div');
         toast.className = 'toast align-items-center text-white bg-' + type + ' border-0 show';
         toast.setAttribute('role', 'alert');
@@ -123,43 +485,17 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.style.zIndex = '9999';
         
         toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" 
-                        data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
+          <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
         `;
         
         document.body.appendChild(toast);
         setTimeout(function() { toast.remove(); }, 3000);
-    }
-});
-</script>
-
-<style>
-.music-cover {
-    height: 200px;
-    object-fit: cover;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-}
-
-.card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border-radius: 0.5rem;
-    overflow: hidden;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-
-.badge.bg-light {
-    border: 1px solid #dee2e6;
-}
-
-.toast {
-    min-width: 250px;
-}
-</style>
-{% endblock %}
+      }
+    });
+  </script>
+</body>
+</html>
