@@ -806,6 +806,7 @@ def submit_vote(event_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
     
+    
     # Rest of your existing code...
 
 @app.route('/admin/announce_winner/<int:event_id>')
@@ -870,6 +871,37 @@ def manage_artists():
      .all()
     
     return render_template('manage_artists.html', artists=artists)
+@app.route('/admin/voting_event/<int:event_id>')
+@login_required
+def voting_event_details(event_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    event = VoteEvent.query.get_or_404(event_id)
+    options = VoteOption.query.filter_by(vote_event_id=event_id).order_by(VoteOption.vote_count.desc()).all()
+    
+    # Calculate total votes
+    total_votes = sum(option.vote_count for option in options)
+    
+    # Get the most voted option (if any)
+    most_voted = options[0] if options else None
+    
+    # Check if there's a winner result
+    winner_result = VoteResult.query.filter_by(vote_event_id=event_id).first()
+    winner_option = None
+    if winner_result:
+        if winner_result.winner_type == 'song':
+            winner_option = VoteOption.query.filter_by(vote_event_id=event_id, song_id=winner_result.winner_id).first()
+        else:
+            winner_option = VoteOption.query.filter_by(vote_event_id=event_id, artist_id=winner_result.winner_id).first()
+    
+    return render_template('voting_event_details.html',
+                         event=event,
+                         options=options,
+                         total_votes=total_votes,
+                         most_voted=most_voted,
+                         winner_option=winner_option)
 
 @app.route('/admin/add_artist', methods=['GET', 'POST'])
 @login_required

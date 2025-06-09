@@ -192,6 +192,7 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       transition: all 0.3s;
       border-left: 5px solid var(--primary);
+      position: relative;
     }
 
     .event-card:hover {
@@ -242,6 +243,8 @@
       padding: 0.75rem 1.25rem;
       background-color: rgba(0,0,0,0.02);
       border-top: 1px solid var(--light-gray);
+      position: relative;
+      z-index: 2;
     }
 
     .event-status {
@@ -264,6 +267,18 @@
     .event-actions {
       display: flex;
       gap: 0.5rem;
+    }
+
+    .card-clickable-area {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      padding: 1.25rem;
+    }
+
+    .card-clickable-area:hover {
+      background-color: rgba(0,0,0,0.02);
     }
 
     .empty-state {
@@ -390,15 +405,19 @@
     <div class="events-grid">
       {% for event in events %}
       <div class="event-card {% if event.is_active %}active{% else %}closed{% endif %}">
-        <div class="event-content">
-          <h3 class="event-title">{{ event.title }}</h3>
-          <p class="event-category">{{ event.category.replace('_', ' ').title() }}</p>
-          <div class="event-dates">
-            <p><strong>Starts:</strong> {{ event.start_date.strftime('%b %d, %Y') }}</p>
-            <p><strong>Ends:</strong> {{ event.end_date.strftime('%b %d, %Y') }}</p>
+        <!-- Clickable content area -->
+        <a href="{{ url_for('voting_event_details', event_id=event.id) }}" class="card-clickable-area">
+          <div class="event-content">
+            <h3 class="event-title">{{ event.title }}</h3>
+            <p class="event-category">{{ event.category.replace('_', ' ').title() }}</p>
+            <div class="event-dates">
+              <p><strong>Starts:</strong> {{ event.start_date.strftime('%b %d, %Y') }}</p>
+              <p><strong>Ends:</strong> {{ event.end_date.strftime('%b %d, %Y') }}</p>
+            </div>
           </div>
-        </div>
+        </a>
         
+        <!-- Footer with actions -->
         <div class="event-footer">
           <span class="event-status {% if event.is_active %}status-active{% else %}status-closed{% endif %}">
             {% if event.is_active %}Active{% else %}Closed{% endif %}

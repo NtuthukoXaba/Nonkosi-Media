@@ -1,56 +1,377 @@
-{% extends 'admin_base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Song Options - Nonkosi Media Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222;
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #666;
+      --light-gray: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
 
-{% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Add Song Options: {{ event.title }}</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('add_voting_options', event_id=event.id) }}">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th width="40px">Select</th>
-                                        <th>Song</th>
-                                        <th>Artist</th>
-                                        <th>Album</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for song in options %}
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="song_options" value="{{ song.id }}">
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="{{ url_for('static', filename='uploads/' + song.cover_image) }}" 
-                                                     alt="{{ song.title }}" width="40" height="40" class="rounded me-3">
-                                                {{ song.title }}
-                                            </div>
-                                        </td>
-                                        <td>{{ song.artist.name }}</td>
-                                        <td>{{ song.album or 'Single' }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary">Add Selected Songs</button>
-                            <a href="{{ url_for('voting_events') }}" class="btn btn-outline-secondary">
-                                Back to Events
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    .header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .logo i {
+      color: var(--secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.2s;
+      padding: 5px 0;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--secondary);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-links a i {
+      font-size: 1rem;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .user-profile img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--secondary);
+    }
+
+    .user-profile span {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--secondary);
+      color: white;
+      padding: 0.5rem 1.25rem;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 2px solid var(--secondary);
+    }
+
+    .btn:hover {
+      background-color: transparent;
+      color: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--secondary);
+      border: 2px solid var(--secondary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--secondary);
+      color: white;
+    }
+
+    .btn i {
+      font-size: 0.9rem;
+    }
+
+    .card {
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border: none;
+    }
+
+    .card-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 1.5rem;
+      font-weight: 600;
+      border-bottom: none;
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table th {
+      background-color: var(--light-gray);
+      border-bottom: 2px solid var(--light-gray);
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: rgba(11, 60, 93, 0.05);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      color: var(--secondary);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+
+    footer {
+      background-color: var(--primary);
+      padding: 1.5rem 2rem;
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: white;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+      }
+
+      .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">
+      <i class="fas fa-music"></i>
+      <span>Nonkosi Media</span>
     </div>
-</div>
-{% endblock %}
+    <nav class="nav-links">
+      <a href="/admin">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/upcoming_music">
+        <i class="fas fa-music"></i>
+        <span>New Music</span>
+      </a>
+      <a href="/admin/artists">
+        <i class="fas fa-user"></i>
+        <span>Artists</span>
+      </a>
+      <a href="/admin/charts_manager">
+        <i class="fas fa-chart-line"></i>
+        <span>Charts</span>
+      </a>
+      <a href="/admin/voting_events" class="active">
+        <i class="fas fa-vote-yea"></i>
+        <span>Voting</span>
+      </a>
+      <a href="/admin/news">
+        <i class="fas fa-newspaper"></i>
+        <span>News</span>
+      </a>
+      <a href="/admin/manage_journalists">
+        <i class="fas fa-users"></i>
+        <span>Journalists</span>
+      </a>
+      <div class="user-profile">
+        <img src="/static/uploads/profile_pics/IMG_20231016_190958~2.jpg" alt="Admin">
+        <span>{{ current_user.username }}</span>
+      </div>
+      <a href="/logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </nav>
+  </header>
+
+  <main class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add Song Options: {{ event.title }}</h4>
+          </div>
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('add_voting_options', event_id=event.id) }}">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th width="40px">Select</th>
+                      <th>Song</th>
+                      <th>Artist</th>
+                      <th>Album</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for song in options %}
+                    <tr>
+                      <td>
+                        <input type="checkbox" name="song_options" value="{{ song.id }}">
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" 
+                               alt="{{ song.title }}" width="40" height="40" class="rounded me-3">
+                          {{ song.title }}
+                        </div>
+                      </td>
+                      <td>{{ song.artist.name }}</td>
+                      <td>{{ song.album or 'Single' }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Add Selected Songs</button>
+                <a href="{{ url_for('voting_events') }}" class="btn btn-outline-secondary">
+                  Back to Events
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© {{ datetime.now().year }} Nonkosi Media. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
