@@ -556,61 +556,19 @@
       </div>
     </div>
     
-    <!-- Top Songs Section -->
-    <div class="section fade-in">
-      <h2 class="section-title">Top Songs</h2>
-      {% if top_songs %}
-      <ul class="song-list">
-        {% for song in top_songs %}
-        <li class="song-item">
-          <div class="song-info">
-            <div class="song-title">{{ song.title }}</div>
-            {% if song.album %}
-            <div class="song-album">{{ song.album }}</div>
-            {% endif %}
-          </div>
-          <div class="song-links">
-            {% if song.spotify_link %}
-            <a href="{{ song.spotify_link }}" class="song-link" target="_blank">
-              <i class="fab fa-spotify"></i> Spotify
-            </a>
-            {% endif %}
-            {% if song.youtube_link %}
-            <a href="{{ song.youtube_link }}" class="song-link" target="_blank">
-              <i class="fab fa-youtube"></i> YouTube
-            </a>
-            {% endif %}
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <div class="no-content">
-        <i class="fas fa-music"></i>
-        <p>No top songs available</p>
-      </div>
-      {% endif %}
-    </div>
+    
     
     <!-- Upcoming Gigs Section -->
     <div class="section fade-in">
-      <h2 class="section-title">Upcoming Performances</h2>
+      <h2 class="section-title"></h2>
       {% if upcoming_gigs %}
       <ul class="gig-list">
-        {% for gig in upcoming_gigs %}
-        <li class="gig-item">
-          <div class="gig-info">
-            <div class="gig-venue">{{ gig.venue }}</div>
-            <div class="gig-date">{{ gig.date.strftime('%B %d, %Y') }}</div>
-          </div>
-          <div class="gig-city">{{ gig.city }}</div>
-        </li>
-        {% endfor %}
+        
       </ul>
       {% else %}
       <div class="no-content">
         <i class="fas fa-calendar-alt"></i>
-        <p>No upcoming performances scheduled</p>
+        <p></p>
       </div>
       {% endif %}
     </div>

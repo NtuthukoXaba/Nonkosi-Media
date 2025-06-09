@@ -437,19 +437,46 @@
       <div class="artists-grid">
         {% if artists %}
           {% for artist in artists %}
-          <div class="artist-card fade-in delay-{{ loop.index % 3 }}">
-            <a href="/artist/{{ artist.id }}" style="text-decoration: none; color: inherit;">
-              <div class="artist-image">
-                <img src="{{ url_for('static', filename='uploads/profile_pics/' + artist.image) }}" 
-                     alt="{{ artist.name }}">
+            {% if not search_query and loop.index <= 6 %}
+              <div class="artist-card fade-in delay-{{ loop.index % 3 }}">
+                <a href="/artist/{{ artist.id }}" style="text-decoration: none; color: inherit;">
+                  <div class="artist-image">
+                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + artist.image) }}" 
+                         alt="{{ artist.name }}">
+                  </div>
+                  <div class="artist-content">
+                    <h3 class="artist-name">{{ artist.name }}</h3>
+                    <a href="/artist/{{ artist.id }}" class="view-profile">View Profile</a>
+                  </div>
+                </a>
               </div>
-              <div class="artist-content">
-                <h3 class="artist-name">{{ artist.name }}</h3>
-                <a href="/artist/{{ artist.id }}" class="view-profile">View Profile</a>
+            {% elif search_query %}
+              <div class="artist-card fade-in delay-{{ loop.index % 3 }}">
+                <a href="/artist/{{ artist.id }}" style="text-decoration: none; color: inherit;">
+                  <div class="artist-image">
+                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + artist.image) }}" 
+                         alt="{{ artist.name }}">
+                  </div>
+                  <div class="artist-content">
+                    <h3 class="artist-name">{{ artist.name }}</h3>
+                    <a href="/artist/{{ artist.id }}" class="view-profile">View Profile</a>
+                  </div>
+                </a>
               </div>
-            </a>
-          </div>
+            {% endif %}
           {% endfor %}
+          
+          {% if not search_query and artists|length > 6 %}
+            <div class="artist-card fade-in" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+              <div style="font-size: 3em; color: var(--secondary); margin-bottom: 20px;">
+                <i class="fas fa-ellipsis-h"></i>
+              </div>
+              <h3 class="artist-name">{{ artists|length - 6 }} More Artists</h3>
+              <p style="color: var(--gray); margin-bottom: 20px; text-align: center;">
+                Use the search above to find artists
+              </p>
+            </div>
+          {% endif %}
         {% else %}
           <div class="no-artists fade-in">
             <i class="fas fa-user-alt-slash"></i>
@@ -461,7 +488,6 @@
       </div>
     </div>
   </section>
-
   <!-- Footer -->
   <footer class="site-footer">
     <div class="container">
