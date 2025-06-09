@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>New Music Alert - Nonkosi Media</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
@@ -13,25 +13,24 @@
       --dark: #222;
       --light: #f5f5f5;
       --accent: #103b6f;
-      --gray: #6c757d;
+      --gray: #666;
     }
     
     body {
-      font-family: 'Ubuntu', sans-serif;
       margin: 0;
-      padding: 0;
+      font-family: 'Ubuntu', sans-serif;
+      background-color: var(--light);
       color: var(--dark);
       line-height: 1.6;
-      background-color: var(--light);
     }
-    
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px;
     }
-    
-    /* Header */
+
+    /* Header Styles */
     .site-header {
       background-color: var(--primary);
       color: white;
@@ -48,24 +47,29 @@
       align-items: center;
     }
 
-    .logo {
-      font-size: 2em;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--secondary);
-      text-decoration: none;
+    .logo-container {
       display: flex;
       align-items: center;
+      gap: 15px;
     }
 
-    .logo i {
-      margin-right: 10px;
-      font-size: 1.2em;
+    .logo-img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      font-size: 1.5em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: white;
+      text-decoration: none;
     }
 
     .main-nav {
       display: flex;
-      gap: 20px;
+      gap: 25px;
     }
 
     .main-nav a {
@@ -75,6 +79,7 @@
       padding: 5px 0;
       position: relative;
       transition: color 0.3s;
+      font-size: 0.95rem;
     }
 
     .main-nav a:hover {
@@ -95,21 +100,25 @@
     .main-nav a:hover::after {
       width: 100%;
     }
-    
-    /* Section Title */
+
+    /* Section Styles */
+    .section {
+      padding: 80px 0;
+    }
+
     .section-title {
       text-align: center;
-      margin: 50px 0 40px;
-      position: relative;
+      margin-bottom: 50px;
     }
-    
+
     .section-title h2 {
-      font-size: 2.2em;
+      font-size: 2rem;
       color: var(--primary);
-      display: inline-block;
       margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
     }
-    
+
     .section-title h2::after {
       content: '';
       display: block;
@@ -118,15 +127,14 @@
       background-color: var(--secondary);
       margin: 15px auto 0;
     }
-    
+
     /* Music Grid */
     .music-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 30px;
-      margin-bottom: 50px;
     }
-    
+
     .music-card {
       background-color: white;
       border-radius: 10px;
@@ -134,92 +142,113 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       transition: all 0.3s;
     }
-    
+
     .music-card:hover {
       transform: translateY(-10px);
       box-shadow: 0 15px 30px rgba(0,0,0,0.2);
     }
-    
+
     .music-card img {
       width: 100%;
       height: 250px;
       object-fit: cover;
       transition: transform 0.5s;
     }
-    
+
     .music-card:hover img {
       transform: scale(1.05);
     }
-    
+
     .music-info {
       padding: 20px;
     }
-    
+
     .music-info h3 {
       margin: 0 0 10px;
-      font-size: 1.3em;
+      font-size: 1.2rem;
       color: var(--primary);
     }
-    
+
     .music-info p {
       margin: 0 0 8px;
-      color: #666;
+      color: var(--gray);
+      font-size: 0.95rem;
     }
-    
+
     .release-date {
       color: var(--secondary);
       font-weight: 500;
       margin: 10px 0;
     }
-    
+
     .days-left {
       display: inline-block;
       background-color: var(--primary);
       color: white;
       padding: 5px 15px;
       border-radius: 30px;
-      font-size: 0.9em;
+      font-size: 0.9rem;
       font-weight: 500;
       margin-top: 10px;
     }
-    
+
+    /* No Music */
     .no-music {
       text-align: center;
       grid-column: 1 / -1;
       padding: 50px 0;
       color: var(--gray);
     }
-    
+
     .no-music i {
       font-size: 2.5rem;
       margin-bottom: 15px;
       color: var(--secondary);
     }
-    
+
     .no-music h3 {
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       margin-bottom: 10px;
       color: var(--primary);
     }
-    
+
     /* Footer */
     .site-footer {
       background-color: var(--primary);
       color: white;
-      padding: 40px 0 20px;
+      padding: 60px 0 30px;
     }
 
     .footer-content {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 30px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
     }
 
     .footer-column h3 {
       color: var(--secondary);
       margin-bottom: 20px;
-      font-size: 1.2em;
+      font-size: 1.2rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .footer-column h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background-color: var(--secondary);
+    }
+
+    .footer-column p, 
+    .footer-column ul {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.95rem;
+      line-height: 1.6;
     }
 
     .footer-column ul {
@@ -228,7 +257,7 @@
     }
 
     .footer-column ul li {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .footer-column a {
@@ -244,30 +273,46 @@
     .social-links {
       display: flex;
       gap: 15px;
-      margin-top: 15px;
+      margin-top: 20px;
     }
 
     .social-links a {
       color: white;
-      font-size: 1.2em;
+      font-size: 1.2rem;
       transition: color 0.3s;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .social-links a:hover {
       color: var(--secondary);
+      background-color: rgba(255,255,255,0.2);
     }
 
     .copyright {
       text-align: center;
-      padding-top: 20px;
+      padding-top: 30px;
       border-top: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
     }
-    
-    /* Responsive */
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .section {
+        padding: 60px 0;
+      }
+    }
+
     @media (max-width: 768px) {
       .header-content {
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
       }
       
       .main-nav {
@@ -276,27 +321,24 @@
       }
       
       .section-title h2 {
-        font-size: 1.8em;
+        font-size: 1.8rem;
       }
     }
-    
-    @media (max-width: 480px) {
+
+    @media (max-width: 576px) {
       .music-grid {
         grid-template-columns: 1fr;
       }
-      
-      .section-title h2 {
-        font-size: 1.5em;
-      }
     }
-    
-    /* Animation */
+
+    /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .fade-in {
+      opacity: 0;
       animation: fadeIn 0.8s ease-out forwards;
     }
 
@@ -314,27 +356,32 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container header-content">
-      <a href="/" class="logo">
-        <i class="fas fa-music"></i> NONKOSI MEDIA
-      </a>
-      <nav class="main-nav">
-        <a href="/">Home</a>
-        <a href="/news">News</a>
-        <a href="/new_music">New Music Alert</a>
-        <a href="/charts">Charts</a>
-        <a href="/artists">Artists</a>
-        <a href="/vote">Vote</a>
-      </nav>
-    </div>
-  </header>
 
-  <!-- Upcoming Music Section -->
-  <section class="container">
-    <div class="section-title fade-in">
-      <h2>Upcoming/New Release</h2>
+<!-- Header -->
+<header class="site-header">
+  <div class="container header-content">
+    <div class="logo-container">
+      <img src="{{ url_for('static', filename='uploads/profile_pics/NonkosiLogopng.png') }}" 
+           alt="Nonkosi Media Logo" 
+           class="logo-img"/>
+      <a href="/" class="logo-text">NONKOSI MEDIA</a>
+    </div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/news">News</a>
+      <a href="/new_music">New Music</a>
+      <a href="/charts">Charts</a>
+      <a href="/artists">Artists</a>
+      <a href="/vote">Vote</a>
+    </nav>
+  </div>
+</header>
+
+<!-- New Music Section -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <h2>New Music Alert</h2>
     </div>
     
     {% if upcoming_music %}
@@ -358,68 +405,69 @@
     {% else %}
     <div class="no-music fade-in">
       <i class="fas fa-music"></i>
-      <h3>No upcoming releases</h3>
+      <h3>No Upcoming Releases</h3>
       <p>Check back soon for new music announcements!</p>
     </div>
     {% endif %}
-  </section>
+  </div>
+</section>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-column">
-          <h3>About Us</h3>
-          <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
-          <div class="social-links">
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-          </div>
-        </div>
-        <div class="footer-column">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/news">News</a></li>
-            <li><a href="/new_music">New Music Alert</a></li>
-            <li><a href="/charts">Charts</a></li>
-            <li><a href="/artists">Artists</a></li>
-            <li><a href="/vote">Vote</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>Contact</h3>
-          <ul>
-            <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
-            <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
-            <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
-          </ul>
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>About Us</h3>
+        <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
-      <div class="copyright">
-        <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/news">News</a></li>
+          <li><a href="/new_music">New Music</a></li>
+          <li><a href="/charts">Charts</a></li>
+          <li><a href="/artists">Artists</a></li>
+          <li><a href="/vote">Vote</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Contact</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+          <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+          <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+        </ul>
       </div>
     </div>
-  </footer>
+    <div class="copyright">
+      <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
 
-  <script>
-    // Animation on scroll
-    const fadeElements = document.querySelectorAll('.fade-in');
-    
-    const fadeInOnScroll = function() {
-      for (let i = 0; i < fadeElements.length; i++) {
-        const elem = fadeElements[i];
-        const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
-        if (distInView < 0) {
-          elem.classList.add('in-view');
-        }
+<script>
+  // Animation on scroll
+  const fadeElements = document.querySelectorAll('.fade-in');
+  
+  const fadeInOnScroll = function() {
+    for (let i = 0; i < fadeElements.length; i++) {
+      const elem = fadeElements[i];
+      const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+      if (distInView < 0) {
+        elem.classList.add('in-view');
       }
-    };
-    
-    window.addEventListener('scroll', fadeInOnScroll);
-    fadeInOnScroll();
-  </script>
+    }
+  };
+  
+  window.addEventListener('scroll', fadeInOnScroll);
+  fadeInOnScroll();
+</script>
 </body>
 </html>

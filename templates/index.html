@@ -389,6 +389,48 @@
       gap: 8px;
       font-size: 0.95rem;
     }
+    .top-songs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.song-card {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.song-position {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin-right: 20px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.song-cover {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.song-info h3 {
+  margin: 0 0 5px;
+  color: var(--primary);
+}
+
+.song-info p {
+  margin: 0;
+  color: var(--gray);
+}
 
     /* Footer */
     .site-footer {
@@ -568,6 +610,91 @@
       color: var(--primary);
     }
 
+    /* Horizontal Scroller Styles */
+.releases-scroller {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: 0 -20px;
+}
+
+.releases-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+  padding: 20px 0;
+  flex: 1;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+
+.releases-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome/Safari */
+}
+
+.release-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  margin: 0 15px;
+  transition: transform 0.3s;
+}
+
+.scroll-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.3s;
+  position: relative;
+  margin: 0 10px;
+}
+
+.scroll-btn:hover {
+  background: var(--secondary);
+  transform: scale(1.1);
+}
+
+.scroll-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .release-card {
+    flex: 0 0 240px;
+    margin: 0 10px;
+  }
+  
+  .scroll-btn {
+    width: 35px;
+    height: 35px;
+    margin: 0 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .release-card {
+    flex: 0 0 200px;
+  }
+  
+  .scroll-btn {
+    display: none; /* Hide buttons on small screens */
+  }
+  
+  .releases-container {
+    padding: 10px 0;
+  }
+}
+
     /* Responsive Styles */
     @media (max-width: 992px) {
       .hero-content {
@@ -700,77 +827,60 @@
   </div>
 </section>
 
-<!-- Latest Releases -->
+<!-- Latest Releases (Horizontal Scroller) -->
 <section class="section releases">
   <div class="container">
     <div class="section-title">
-      <h2>Latest Releases</h2>
+      <h2>Upcoming Releases</h2>
     </div>
-    <div class="release-grid">
-      {% for song in latest_releases %}
-      <div class="release-card fade-in delay-{{ loop.index % 3 }}">
-        <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" alt="{{ song.title }}"/>
-        <div class="release-info">
-          <h3>{{ song.title }}</h3>
-          <p>{{ song.artist.name }}</p>
-          <div class="release-links">
-            {% if song.spotify_link %}
-            <a href="{{ song.spotify_link }}" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>
-            {% endif %}
-            {% if song.youtube_link %}
-            <a href="{{ song.youtube_link }}" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>
+    <div class="releases-scroller">
+      <button class="scroll-btn left-btn" aria-label="Scroll left">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="releases-container">
+        {% for music in upcoming_music %}
+        <div class="release-card fade-in delay-{{ loop.index % 3 }}">
+          <img src="{{ url_for('static', filename='uploads/profile_pics/' + music.cover_image) }}" alt="{{ music.title }}"/>
+          <div class="release-info">
+            <h3>{{ music.title }}</h3>
+            <p>{{ music.artist.name }}</p>
+            <p><small>Releases on {{ music.release_date.strftime('%B %d, %Y') }}</small></p>
+            {% if music.album %}
+            <p><small>Album: {{ music.album }}</small></p>
             {% endif %}
           </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
+      <button class="scroll-btn right-btn" aria-label="Scroll right">
+        <i class="fas fa-chevron-right"></i>
+      </button>
     </div>
   </div>
 </section>
 
-<!-- Top 20 Charts -->
-<section class="section charts">
+<!-- Top 3 Songs -->
+<section class="section">
   <div class="container">
-    <div class="section-title">
-      <h2>Top 20 Maskandi</h2>
-    </div>
-    <ol class="chart-list">
-      {% for song in top_songs %}
-      <li class="fade-in delay-{{ loop.index % 3 }}">
-        <span class="chart-position">{{ loop.index }}</span>
-        <span class="chart-song">
-          <strong>{{ song.title }}</strong>
-          <span class="chart-artist">by {{ song.artist.name }}</span>
-        </span>
-      </li>
+    <h2 class="section-title">Top 3 Maskandi Hits</h2>
+    <div class="top-songs-grid">
+      {% for song in top_3 %}
+      <div class="song-card">
+        <div class="song-position">{{ song.chart_position }}</div>
+        <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" 
+             alt="{{ song.title }}" class="song-cover">
+        <div class="song-info">
+          <h3>{{ song.title }}</h3>
+          <p>{{ song.artist.name }}</p>
+        </div>
+      </div>
       {% endfor %}
-    </ol>
-    <div class="view-all">
-      <a href="/charts" class="btn">View Full Chart</a>
     </div>
   </div>
 </section>
 
 <!-- Upcoming Events -->
-<section class="section events">
-  <div class="container">
-    <div class="section-title">
-      <h2>Upcoming Events</h2>
-    </div>
-    <div class="release-grid">
-      {% for gig in upcoming_gigs %}
-      <div class="event-card fade-in delay-{{ loop.index % 3 }}">
-        <img src="{{ url_for('static', filename='uploads/profile_pics/' + gig.artist.image) }}" alt="{{ gig.artist.name }}"/>
-        <div class="event-info">
-          <h3>{{ gig.artist.name }}</h3>
-          <p><i class="fas fa-map-marker-alt"></i> {{ gig.venue }}, {{ gig.city }}</p>
-          <p><i class="fas fa-calendar-alt"></i> {{ gig.date.strftime('%B %d, %Y') }}</p>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
+
 
 <!-- Footer -->
 <footer class="site-footer">
@@ -828,6 +938,37 @@
 </div>
 
 <script>
+   // Horizontal scrolling for releases
+  const releasesContainer = document.querySelector('.releases-container');
+  const leftBtn = document.querySelector('.left-btn');
+  const rightBtn = document.querySelector('.right-btn');
+
+  if (releasesContainer) {
+    leftBtn.addEventListener('click', () => {
+      releasesContainer.scrollBy({
+        left: -300,
+        behavior: 'smooth'
+      });
+    });
+
+    rightBtn.addEventListener('click', () => {
+      releasesContainer.scrollBy({
+        left: 300,
+        behavior: 'smooth'
+      });
+    });
+
+    // Disable buttons when at scroll extremes
+    releasesContainer.addEventListener('scroll', () => {
+      leftBtn.disabled = releasesContainer.scrollLeft <= 0;
+      rightBtn.disabled = releasesContainer.scrollLeft >= 
+        (releasesContainer.scrollWidth - releasesContainer.clientWidth);
+    });
+
+    // Initialize button states
+    leftBtn.disabled = true;
+    rightBtn.disabled = releasesContainer.scrollWidth <= releasesContainer.clientWidth;
+  }
   // Close modal when clicking outside
   window.onclick = function(event) {
     const modal = document.getElementById('loginModal');
@@ -881,6 +1022,6 @@
       alert('An error occurred during login');
     }
   });
-</script>
+</script> 
 </body>
 </html>

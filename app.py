@@ -211,7 +211,23 @@ def home():
                      .limit(3)\
                      .all()
     
-    return render_template('index.html', top_3=top_3)
+    # Get upcoming music (next 15 days)
+    today = datetime.utcnow()
+    future_date = today + timedelta(days=15)
+    upcoming_music = UpcomingMusic.query.filter(
+        UpcomingMusic.release_date >= today,
+        UpcomingMusic.release_date <= future_date
+    ).order_by(UpcomingMusic.release_date).all()
+    
+    # Get upcoming gigs
+    upcoming_gigs = Gig.query.filter(
+        Gig.date >= datetime.utcnow()
+    ).order_by(Gig.date).limit(3).all()
+    
+    return render_template('index.html', 
+                         top_3=top_3,
+                         upcoming_music=upcoming_music,
+                         upcoming_gigs=upcoming_gigs)
 
 @app.route('/admin')
 @login_required
@@ -1061,6 +1077,7 @@ def add_gig(artist_id):
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
+
 @app.route('/admin/delete_gig/<int:gig_id>', methods=['DELETE'])
 @login_required
 def delete_gig(gig_id):
@@ -1200,6 +1217,7 @@ def preview_article(article_id):
     return render_template('article_preview.html', article=article)
 
 # --- Admin News Moderation Routes ---
+
 @app.route('/admin/news')
 @login_required
 def admin_news():

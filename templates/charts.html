@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Top 20 Maskandi Charts - Nonkosi Media</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     :root {
@@ -13,25 +13,24 @@
       --dark: #222;
       --light: #f5f5f5;
       --accent: #103b6f;
-      --gray: #6c757d;
+      --gray: #666;
     }
     
     body {
-      font-family: 'Ubuntu', sans-serif;
       margin: 0;
-      padding: 0;
+      font-family: 'Ubuntu', sans-serif;
+      background-color: var(--light);
       color: var(--dark);
       line-height: 1.6;
-      background-color: var(--light);
     }
-    
+
     .container {
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px;
     }
-    
-    /* Header */
+
+    /* Header Styles */
     .site-header {
       background-color: var(--primary);
       color: white;
@@ -48,24 +47,29 @@
       align-items: center;
     }
 
-    .logo {
-      font-size: 2em;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--secondary);
-      text-decoration: none;
+    .logo-container {
       display: flex;
       align-items: center;
+      gap: 15px;
     }
 
-    .logo i {
-      margin-right: 10px;
-      font-size: 1.2em;
+    .logo-img {
+      height: 50px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      font-size: 1.5em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: white;
+      text-decoration: none;
     }
 
     .main-nav {
       display: flex;
-      gap: 20px;
+      gap: 25px;
     }
 
     .main-nav a {
@@ -75,6 +79,7 @@
       padding: 5px 0;
       position: relative;
       transition: color 0.3s;
+      font-size: 0.95rem;
     }
 
     .main-nav a:hover {
@@ -95,116 +100,158 @@
     .main-nav a:hover::after {
       width: 100%;
     }
-    
-    /* Chart Header */
-    .chart-header {
+
+    /* Section Styles */
+    .section {
+      padding: 80px 0;
+    }
+
+    .section-title {
       text-align: center;
-      margin: 40px 0 30px;
+      margin-bottom: 50px;
     }
-    
-    .chart-title {
-      font-size: 2.5em;
+
+    .section-title h2 {
+      font-size: 2rem;
       color: var(--primary);
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
     }
-    
-    .chart-date {
-      color: var(--gray);
-      font-size: 1.1em;
+
+    .section-title h2::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background-color: var(--secondary);
+      margin: 15px auto 0;
     }
-    
+
     /* Chart List */
     .chart-list {
-      background: white;
+      background-color: white;
       border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       overflow: hidden;
       margin-bottom: 50px;
     }
-    
+
     .chart-item {
       display: flex;
       align-items: center;
-      padding: 15px 25px;
+      padding: 20px 30px;
       transition: all 0.3s;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
     }
-    
+
+    .chart-item:last-child {
+      border-bottom: none;
+    }
+
     .chart-item:hover {
       background-color: rgba(11, 60, 93, 0.05);
     }
-    
+
     .chart-position {
+      font-size: 1.5rem;
       font-weight: bold;
-      font-size: 1.3em;
       color: var(--primary);
-      min-width: 50px;
+      min-width: 60px;
       text-align: center;
     }
-    
+
     /* Medal colors for top 3 positions */
     .chart-item:nth-child(1) .chart-position {
       color: gold;
-      font-size: 1.5em;
+      font-size: 1.8rem;
     }
     
     .chart-item:nth-child(2) .chart-position {
       color: silver;
-      font-size: 1.4em;
+      font-size: 1.7rem;
     }
     
     .chart-item:nth-child(3) .chart-position {
       color: #cd7f32; /* bronze */
-      font-size: 1.4em;
+      font-size: 1.7rem;
     }
-    
+
     .chart-cover {
-      width: 70px;
-      height: 70px;
+      width: 80px;
+      height: 80px;
       object-fit: cover;
-      border-radius: 50%; /* Circular shape */
-      border: 3px solid var(--primary);
-      margin: 0 20px;
+      border-radius: 8px;
+      margin: 0 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       transition: transform 0.3s;
     }
-    
+
     .chart-item:hover .chart-cover {
       transform: scale(1.1);
     }
-    
+
     .chart-info {
       flex: 1;
     }
-    
+
     .chart-info h3 {
-      margin: 0 0 5px 0;
-      font-size: 1.2em;
+      margin: 0 0 8px 0;
+      font-size: 1.3rem;
       color: var(--primary);
     }
-    
+
     .chart-info p {
       margin: 0;
       color: var(--gray);
       font-style: italic;
     }
-    
+
+    /* Current Date */
+    .current-date {
+      text-align: center;
+      color: var(--gray);
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+
     /* Footer */
     .site-footer {
       background-color: var(--primary);
       color: white;
-      padding: 40px 0 20px;
+      padding: 60px 0 30px;
     }
 
     .footer-content {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 30px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
     }
 
     .footer-column h3 {
       color: var(--secondary);
       margin-bottom: 20px;
-      font-size: 1.2em;
+      font-size: 1.2rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .footer-column h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background-color: var(--secondary);
+    }
+
+    .footer-column p, 
+    .footer-column ul {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.95rem;
+      line-height: 1.6;
     }
 
     .footer-column ul {
@@ -213,7 +260,7 @@
     }
 
     .footer-column ul li {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .footer-column a {
@@ -229,30 +276,46 @@
     .social-links {
       display: flex;
       gap: 15px;
-      margin-top: 15px;
+      margin-top: 20px;
     }
 
     .social-links a {
       color: white;
-      font-size: 1.2em;
+      font-size: 1.2rem;
       transition: color 0.3s;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .social-links a:hover {
       color: var(--secondary);
+      background-color: rgba(255,255,255,0.2);
     }
 
     .copyright {
       text-align: center;
-      padding-top: 20px;
+      padding-top: 30px;
       border-top: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
     }
-    
-    /* Responsive */
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .section {
+        padding: 60px 0;
+      }
+    }
+
     @media (max-width: 768px) {
       .header-content {
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
       }
       
       .main-nav {
@@ -260,69 +323,97 @@
         justify-content: center;
       }
       
-      .chart-title {
-        font-size: 2em;
+      .section-title h2 {
+        font-size: 1.8rem;
       }
       
       .chart-item {
-        padding: 12px 15px;
+        padding: 15px 20px;
       }
       
       .chart-cover {
-        width: 60px;
-        height: 60px;
+        width: 70px;
+        height: 70px;
         margin: 0 15px;
       }
     }
-    
-    @media (max-width: 480px) {
-      .chart-title {
-        font-size: 1.7em;
-      }
-      
+
+    @media (max-width: 576px) {
       .chart-item {
         flex-direction: column;
         text-align: center;
-        padding: 20px;
+        padding: 25px;
       }
       
       .chart-position {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
       }
       
       .chart-cover {
-        margin: 10px 0;
+        margin: 15px 0;
       }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container header-content">
-      <a href="/" class="logo">
-        <i class="fas fa-music"></i> NONKOSI MEDIA
-      </a>
-      <nav class="main-nav">
-        <a href="/">Home</a>
-        <a href="/news">News</a>
-        <a href="/new_music">New Music Alert</a>
-        <a href="/charts">Charts</a>
-        <a href="/artists">Artists</a>
-        <a href="/vote">Vote</a>
-      </nav>
-    </div>
-  </header>
 
-  <main class="container">
-    <div class="chart-header">
-      <h1 class="chart-title">Maskandi Top 20</h1>
-      <div class="chart-date">{{ current_date }}</div>
+<!-- Header -->
+<header class="site-header">
+  <div class="container header-content">
+    <div class="logo-container">
+      <img src="{{ url_for('static', filename='uploads/profile_pics/NonkosiLogopng.png') }}" 
+           alt="Nonkosi Media Logo" 
+           class="logo-img"/>
+      <a href="/" class="logo-text">NONKOSI MEDIA</a>
+    </div>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/news">News</a>
+      <a href="/new_music">New Music</a>
+      <a href="/charts">Charts</a>
+      <a href="/artists">Artists</a>
+      <a href="/vote">Vote</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Charts Section -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <h2>Top 20 Maskandi</h2>
+    </div>
+    
+    <div class="current-date">
+      {{ current_date }}
     </div>
     
     <div class="chart-list">
       {% for song in top_songs %}
-      <div class="chart-item">
+      <div class="chart-item fade-in delay-{{ loop.index % 3 }}">
         <div class="chart-position">{{ song.chart_position }}</div>
         <img src="{{ url_for('static', filename='uploads/profile_pics/' + song.cover_image) }}" 
              alt="{{ song.title }}" class="chart-cover">
@@ -333,18 +424,20 @@
       </div>
       {% endfor %}
     </div>
-  </main>
+  </div>
+</section>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-column">
-          <h3>About Us</h3>
-          <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
-          <div class="social-links">
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>About Us</h3>
+        <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-youtube"></i></a>
           </div>
