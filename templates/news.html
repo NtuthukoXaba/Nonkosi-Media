@@ -100,94 +100,6 @@
     .main-nav a:hover::after {
       width: 100%;
     }
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
-      color: white;
-      padding: 80px 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('https://images.unsplash.com/photo-1605020420620-20c943cc4669?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
-      opacity: 0.15;
-      z-index: 0;
-    }
-
-    .hero-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
-      gap: 40px;
-    }
-
-    .hero-text {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .hero-text h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-      line-height: 1.2;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-    }
-
-    .hero-text p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      max-width: 500px;
-    }
-
-    .btn {
-      display: inline-block;
-      background-color: var(--secondary);
-      color: white;
-      padding: 12px 30px;
-      text-decoration: none;
-      border-radius: 30px;
-      font-weight: 500;
-      transition: all 0.3s;
-      border: 2px solid var(--secondary);
-      font-size: 0.95rem;
-    }
-
-    .btn:hover {
-      background-color: transparent;
-      color: white;
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
-    }
-
-    .hero-media {
-      flex: 1;
-      min-width: 300px;
-      display: flex;
-      justify-content: center;
-    }
-
-    .hero-logo {
-      max-width: 350px;
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      transition: transform 0.5s;
-    }
-
-    .hero-media:hover .hero-logo {
-      transform: scale(1.03);
-    }
 
     /* Section Styles */
     .section {
@@ -430,7 +342,7 @@
       box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
     }
 
-     /* Footer */
+    /* Footer */
     .site-footer {
       background-color: var(--primary);
       color: white;
@@ -520,16 +432,6 @@
       font-size: 0.9rem;
     }
 
-    .copyright a {
-      color: white;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
-    .copyright a:hover {
-      color: var(--secondary);
-    }
-
     /* Responsive Styles */
     @media (max-width: 992px) {
       .featured-image {
@@ -567,6 +469,31 @@
       .featured-title {
         font-size: 1.8rem;
       }
+
+      /* Mobile search fixes */
+      .site-header {
+        position: relative; /* Change from sticky to relative on mobile */
+        padding: 15px 0;
+      }
+      
+      .news-search {
+        margin: 30px auto 40px; /* Add more top margin on mobile */
+        padding: 0 15px; /* Add some side padding */
+      }
+      
+      .news-search input {
+        padding: 12px 20px 12px 45px; /* Adjust padding for mobile */
+        font-size: 0.95rem;
+      }
+      
+      .news-search i {
+        left: 15px; /* Adjust search icon position */
+      }
+      
+      /* Add more space between featured article and search */
+      .featured-article {
+        margin-top: 20px;
+      }
     }
 
     @media (max-width: 576px) {
@@ -584,6 +511,20 @@
       
       .news-image {
         height: 200px;
+      }
+
+      /* Small mobile adjustments */
+      .news-search {
+        margin: 20px auto 30px;
+      }
+      
+      .news-search input {
+        padding: 10px 15px 10px 40px;
+      }
+      
+      .news-search i {
+        font-size: 0.9rem;
+        left: 12px;
       }
     }
 
@@ -720,61 +661,61 @@
           <a href="#"><i class="fab fa-facebook-f"></i></a>
           <a href="#"><i class="fab fa-twitter"></i></a>
           <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-          </div>
-        </div>
-        <div class="footer-column">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/news">News</a></li>
-            <li><a href="/new_music">New Music Alert</a></li>
-            <li><a href="/charts">Charts</a></li>
-            <li><a href="/artists">Artists</a></li>
-            <li><a href="/vote">Vote</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>Contact</h3>
-          <ul>
-            <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
-            <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
-            <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
-          </ul>
+          <a href="#"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
-      <div class="copyright">
-        <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/news">News</a></li>
+          <li><a href="/new_music">New Music Alert</a></li>
+          <li><a href="/charts">Charts</a></li>
+          <li><a href="/artists">Artists</a></li>
+          <li><a href="/vote">Vote</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Contact</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+          <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+          <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+        </ul>
       </div>
     </div>
-  </footer>
+    <div class="copyright">
+      <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
 
-  <script>
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
-        });
+<script>
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.querySelector(this.getAttribute('href')).scrollIntoView({
+        behavior: 'smooth'
       });
     });
+  });
 
-    // Animation on scroll
-    const fadeElements = document.querySelectorAll('.fade-in');
-    
-    const fadeInOnScroll = function() {
-      for (let i = 0; i < fadeElements.length; i++) {
-        const elem = fadeElements[i];
-        const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
-        if (distInView < 0) {
-          elem.classList.add('in-view');
-        }
+  // Animation on scroll
+  const fadeElements = document.querySelectorAll('.fade-in');
+  
+  const fadeInOnScroll = function() {
+    for (let i = 0; i < fadeElements.length; i++) {
+      const elem = fadeElements[i];
+      const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+      if (distInView < 0) {
+        elem.classList.add('in-view');
       }
-    };
-    
-    window.addEventListener('scroll', fadeInOnScroll);
-    fadeInOnScroll();
-  </script>
+    }
+  };
+  
+  window.addEventListener('scroll', fadeInOnScroll);
+  fadeInOnScroll();
+</script>
 </body>
-</html>
+</html>SS
