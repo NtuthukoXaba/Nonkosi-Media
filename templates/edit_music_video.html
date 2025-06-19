@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Edit Artist - Nonkosi Media Admin</title>
+  <title>Edit Music Video - Nonkosi Media</title>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
@@ -124,21 +124,31 @@
 
     .container {
       padding: 2rem;
-      max-width: 1400px;
+      max-width: 800px;
       margin: 0 auto;
     }
 
-    .page-header {
+    /* Form Specific Styles */
+    .header-section {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--light-gray);
     }
 
-    .page-title {
+    .header-section h1 {
       font-size: 1.75rem;
       font-weight: 700;
       color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-section h1 i {
+      color: var(--secondary);
     }
 
     .btn {
@@ -147,7 +157,7 @@
       gap: 0.5rem;
       background-color: var(--secondary);
       color: white;
-      padding: 0.5rem 1.25rem;
+      padding: 0.75rem 1.5rem;
       border-radius: 30px;
       font-size: 0.9rem;
       font-weight: 500;
@@ -163,23 +173,7 @@
       box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
     }
 
-    .btn-secondary {
-      background-color: transparent;
-      color: var(--primary);
-      border-color: var(--primary);
-    }
-
-    .btn-secondary:hover {
-      background-color: var(--primary);
-      color: white;
-      box-shadow: 0 5px 15px rgba(11, 60, 93, 0.3);
-    }
-
-    .btn i {
-      font-size: 0.9rem;
-    }
-
-    .form-container {
+    .video-form {
       background-color: white;
       border-radius: 0.5rem;
       padding: 2rem;
@@ -197,66 +191,74 @@
       color: var(--primary);
     }
 
-    .form-control {
+    .form-group input,
+    .form-group select {
       width: 100%;
       padding: 0.75rem 1rem;
       border: 1px solid var(--light-gray);
       border-radius: 0.5rem;
+      font-family: inherit;
       font-size: 1rem;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.3s;
     }
 
-    .form-control:focus {
+    .form-group input:focus,
+    .form-group select:focus {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(11, 60, 93, 0.2);
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(242, 46, 62, 0.2);
     }
 
-    textarea.form-control {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .form-control-file {
+    .form-text {
       display: block;
-      width: 100%;
-      padding: 0.5rem 0;
+      margin-top: 0.25rem;
+      font-size: 0.85rem;
+      color: var(--gray);
     }
 
-    .current-image {
+    .form-check {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .current-image img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid var(--light-gray);
-    }
-
-    .social-media-section {
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--light-gray);
-    }
-
-    .social-media-section h3 {
-      font-size: 1.25rem;
-      color: var(--primary);
+      gap: 0.5rem;
       margin-bottom: 1.5rem;
     }
 
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 1rem;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--light-gray);
+    .form-check input {
+      width: auto;
+    }
+
+    .form-check label {
+      margin-bottom: 0;
+      font-weight: 400;
+    }
+
+    .btn-submit {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--success);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: 2px solid var(--success);
+      cursor: pointer;
+    }
+
+    .btn-submit:hover {
+      background-color: transparent;
+      color: var(--success);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .duration-warning {
+      color: var(--danger);
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
     }
 
     footer {
@@ -287,19 +289,14 @@
         padding: 1rem;
       }
 
-      .page-header {
+      .header-section {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
       }
 
-      .form-actions {
-        flex-direction: column;
-      }
-
-      .btn {
-        width: 100%;
-        justify-content: center;
+      .video-form {
+        padding: 1.5rem;
       }
     }
   </style>
@@ -320,7 +317,7 @@
         <i class="fas fa-music"></i>
         <span>New Music</span>
       </a>
-      <a href="/admin/artists" class="active">
+      <a href="/admin/artists">
         <i class="fas fa-user"></i>
         <span>Artists</span>
       </a>
@@ -340,7 +337,7 @@
         <i class="fas fa-users"></i>
         <span>Journalists</span>
       </a>
-      <a href="/admin/music_videos">
+      <a href="/admin/music_videos" class="active">
         <i class="fas fa-video"></i>
         <span>Music Videos</span>
       </a>
@@ -356,80 +353,56 @@
   </header>
 
   <main class="container">
-    <div class="page-header">
-      <h1 class="page-title">Edit Artist: {{ artist.name }}</h1>
-      <a href="{{ url_for('manage_artists') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Back to Artists
+    <div class="header-section">
+      <h1><i class="fas fa-video"></i> Edit Music Video</h1>
+      <a href="{{ url_for('manage_music_videos') }}" class="btn">
+        <i class="fas fa-arrow-left"></i> Back to Videos
       </a>
     </div>
 
-    <div class="form-container">
-      <form method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-          <label for="name">Artist Name</label>
-          <input type="text" class="form-control" id="name" name="name" value="{{ artist.name }}" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="bio">Biography</label>
-          <textarea class="form-control" id="bio" name="bio" rows="5" required>{{ artist.bio }}</textarea>
-        </div>
-        
-        <div class="form-group">
-          <label>Current Image</label>
-          <div class="current-image">
-            <img src="{{ url_for('static', filename='uploads/profile_pics/' + artist.image) }}" 
-                 alt="{{ artist.name }}">
-            <div>
-              <label for="image">Change Image</label>
-              <input type="file" class="form-control-file" id="image" name="image">
-            </div>
-          </div>
-        </div>
-        
-        <div class="social-media-section">
-          <h3>Social Media Links</h3>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="facebook">Facebook</label>
-                <input type="url" class="form-control" id="facebook" name="facebook" 
-                       placeholder="https://facebook.com/username"
-                       value="{{ artist.social_media.facebook if artist.social_media and artist.social_media.facebook }}">
-              </div>
-              
-              <div class="form-group">
-                <label for="twitter">Twitter</label>
-                <input type="url" class="form-control" id="twitter" name="twitter" 
-                       placeholder="https://twitter.com/username"
-                       value="{{ artist.social_media.twitter if artist.social_media and artist.social_media.twitter }}">
-              </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="instagram">Instagram</label>
-                <input type="url" class="form-control" id="instagram" name="instagram" 
-                       placeholder="https://instagram.com/username"
-                       value="{{ artist.social_media.instagram if artist.social_media and artist.social_media.instagram }}">
-              </div>
-              
-              <div class="form-group">
-                <label for="youtube">YouTube</label>
-                <input type="url" class="form-control" id="youtube" name="youtube" 
-                       placeholder="https://youtube.com/username"
-                       value="{{ artist.social_media.youtube if artist.social_media and artist.social_media.youtube }}">
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-actions">
-          <a href="{{ url_for('manage_artists') }}" class="btn btn-secondary">Cancel</a>
-          <button type="submit" class="btn">Save Changes</button>
-        </div>
-      </form>
-    </div>
+    <form method="POST" class="video-form">
+      <div class="form-group">
+        <label for="title">Video Title</label>
+        <input type="text" id="title" name="title" value="{{ video.title }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="artist_id">Artist</label>
+        <select id="artist_id" name="artist_id" required>
+          <option value="">Select Artist</option>
+          {% for artist in artists %}
+          <option value="{{ artist.id }}" {% if artist.id == video.artist_id %}selected{% endif %}>
+            {{ artist.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="youtube_link">YouTube Link</label>
+        <input type="url" id="youtube_link" name="youtube_link" value="{{ video.youtube_link }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="start_time">Start Time (seconds)</label>
+        <input type="number" id="start_time" name="start_time" min="0" value="{{ video.start_time }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="end_time">End Time (seconds)</label>
+        <input type="number" id="end_time" name="end_time" min="1" value="{{ video.end_time }}" required>
+        <small class="form-text">Maximum 90 seconds duration</small>
+      </div>
+
+      <div class="form-check">
+        <input type="checkbox" id="is_featured" name="is_featured" {% if video.is_featured %}checked{% endif %}>
+        <label for="is_featured">Featured Video</label>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        <i class="fas fa-save"></i> Update Video
+      </button>
+    </form>
   </main>
 
   <footer>
@@ -437,38 +410,46 @@
   </footer>
 
   <script>
-    // Simple form validation
-    document.querySelector('form').addEventListener('submit', function(e) {
-      const nameInput = document.getElementById('name');
-      const bioInput = document.getElementById('bio');
-      
-      if (!nameInput.value.trim()) {
-        e.preventDefault();
-        alert('Please enter the artist name');
-        nameInput.focus();
-        return false;
-      }
-      
-      if (!bioInput.value.trim()) {
-        e.preventDefault();
-        alert('Please enter the artist biography');
-        bioInput.focus();
-        return false;
-      }
-      
-      return true;
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+      const startInput = document.getElementById('start_time');
+      const endInput = document.getElementById('end_time');
+      const durationWarning = document.createElement('div');
+      durationWarning.className = 'duration-warning';
+      endInput.parentNode.appendChild(durationWarning);
 
-    // Preview image before upload
-    document.getElementById('image').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          document.querySelector('.current-image img').src = event.target.result;
+      function validateDuration() {
+        const start = parseInt(startInput.value) || 0;
+        const end = parseInt(endInput.value) || 0;
+        const duration = end - start;
+
+        if (duration > 90) {
+          durationWarning.textContent = `Duration exceeds 90 seconds (currently ${duration}s)`;
+          endInput.setCustomValidity('Duration cannot exceed 90 seconds');
+        } else if (duration <= 0) {
+          durationWarning.textContent = 'End time must be after start time';
+          endInput.setCustomValidity('End time must be after start time');
+        } else {
+          durationWarning.textContent = `Duration: ${duration} seconds`;
+          endInput.setCustomValidity('');
         }
-        reader.readAsDataURL(file);
       }
+
+      startInput.addEventListener('input', validateDuration);
+      endInput.addEventListener('input', validateDuration);
+      
+      // Initial validation
+      validateDuration();
+
+      // Validate YouTube URL format
+      const youtubeInput = document.getElementById('youtube_link');
+      youtubeInput.addEventListener('change', function() {
+        const url = this.value;
+        if (url && !url.match(/^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/)) {
+          this.setCustomValidity('Please enter a valid YouTube URL');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
     });
   </script>
 </body>

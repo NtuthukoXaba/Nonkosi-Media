@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 import os
 from flask import request
 from datetime import datetime, timedelta
+from flask_migrate import Migrate
 
 # --- App setup ---
 app = Flask(__name__)
@@ -21,6 +22,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # --- Database and LoginManager ---
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -123,6 +125,22 @@ class Song(db.Model):
     youtube_link = db.Column(db.String(200))
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
     chart_position = db.Column(db.Integer)
+
+class MusicVideo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
+    youtube_link = db.Column(db.String(200), nullable=False)
+    start_time = db.Column(db.Integer, default=0)  # Start time in seconds
+    end_time = db.Column(db.Integer)  # End time in seconds
+    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_featured = db.Column(db.Boolean, default=False)
+    
+    artist = db.relationship('Artist', backref='music_videos')
+    
+    @property
+    def duration(self):
+        return self.end_time - self.start_time
 
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -1537,6 +1555,199 @@ def admin_stats():
         'pending_articles': News.query.filter_by(is_published=False).count(),
         'active_votes': VoteEvent.query.filter(VoteEvent.is_active==True, VoteEvent.end_date >= datetime.utcnow()).count()
     })
+@app.route('/admin/music_videos')
+@login_required
+def manage_music_videos():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    videos = MusicVideo.query.order_by(MusicVideo.date_added.desc()).all()
+    return render_template('manage_music_videos.html', videos=videos)
+
+@app.route('/admin/add_music_video', methods=['GET', 'POST'])
+@login_required
+def add_music_video():
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        try:
+            title = request.form.get('title')
+            artist_id = request.form.get('artist_id')
+            youtube_link = request.form.get('youtube_link')
+            start_time = int(request.form.get('start_time', 0))
+            end_time = int(request.form.get('end_time'))
+            is_featured = 'is_featured' in request.form
+            
+            # Validate inputs
+            if not all([title, artist_id, youtube_link, end_time]):
+                flash('All fields are required', 'error')
+                return redirect(url_for('add_music_video'))
+            
+            # Validate YouTube link
+            if 'youtube.com' not in youtube_link and 'youtu.be' not in youtube_link:
+                flash('Please provide a valid YouTube link', 'error')
+                return redirect(url_for('add_music_video'))
+            
+            # Validate time values
+            if start_time < 0 or end_time <= 0:
+                flash('Time values must be positive numbers', 'error')
+                return redirect(url_for('add_music_video'))
+                
+            if start_time >= end_time:
+                flash('End time must be greater than start time', 'error')
+                return redirect(url_for('add_music_video'))
+            
+            # Validate duration (max 90 seconds)
+            if (end_time - start_time) > 90:
+                flash('Video segment cannot exceed 90 seconds', 'error')
+                return redirect(url_for('add_music_video'))
+            
+            # Extract video ID from URL
+            if 'youtube.com/watch?v=' in youtube_link:
+                video_id = youtube_link.split('v=')[1].split('&')[0]
+            elif 'youtu.be/' in youtube_link:
+                video_id = youtube_link.split('youtu.be/')[1].split('?')[0]
+            else:
+                video_id = youtube_link
+            
+            # Create enhanced embed URL with parameters
+            embed_url = (
+                f"https://www.youtube.com/embed/{video_id}?"
+                f"start={start_time}&"
+                f"end={end_time}&"
+                "autoplay=0&"
+                "rel=0&"
+                "modestbranding=1&"
+                "controls=1"
+            )
+            
+            new_video = MusicVideo(
+                title=title,
+                artist_id=artist_id,
+                youtube_link=embed_url,
+                start_time=start_time,
+                end_time=end_time,
+                is_featured=is_featured
+            )
+            
+            db.session.add(new_video)
+            db.session.commit()
+            flash('Music video added successfully!', 'success')
+            return redirect(url_for('manage_music_videos'))
+        
+        except ValueError:
+            db.session.rollback()
+            flash('Invalid time values provided', 'error')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding music video: {str(e)}', 'error')
+    
+    artists = Artist.query.order_by(Artist.name).all()
+    return render_template('add_music_video.html', artists=artists)
+
+@app.route('/admin/edit_music_video/<int:video_id>', methods=['GET', 'POST'])
+@login_required
+def edit_music_video(video_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to access this page', 'error')
+        return redirect(url_for('home'))
+    
+    video = MusicVideo.query.get_or_404(video_id)
+    artists = Artist.query.order_by(Artist.name).all()
+    
+    if request.method == 'POST':
+        try:
+            video.title = request.form.get('title')
+            video.artist_id = request.form.get('artist_id')
+            youtube_link = request.form.get('youtube_link')
+            start_time = int(request.form.get('start_time', 0))
+            end_time = int(request.form.get('end_time'))
+            video.is_featured = 'is_featured' in request.form
+            
+            # Validate inputs
+            if not all([video.title, video.artist_id, youtube_link, end_time]):
+                flash('All fields are required', 'error')
+                return redirect(url_for('edit_music_video', video_id=video.id))
+            
+            # Validate time values
+            if start_time < 0 or end_time <= 0:
+                flash('Time values must be positive numbers', 'error')
+                return redirect(url_for('edit_music_video', video_id=video.id))
+                
+            if start_time >= end_time:
+                flash('End time must be greater than start time', 'error')
+                return redirect(url_for('edit_music_video', video_id=video.id))
+            
+            # Validate duration (max 90 seconds)
+            if (end_time - start_time) > 90:
+                flash('Video segment cannot exceed 90 seconds', 'error')
+                return redirect(url_for('edit_music_video', video_id=video.id))
+            
+            # Check if YouTube link changed
+            if youtube_link != video.youtube_link:
+                # Validate new YouTube link
+                if 'youtube.com' not in youtube_link and 'youtu.be' not in youtube_link:
+                    flash('Please provide a valid YouTube link', 'error')
+                    return redirect(url_for('edit_music_video', video_id=video.id))
+                
+                # Extract video ID from new URL
+                if 'youtube.com/watch?v=' in youtube_link:
+                    new_video_id = youtube_link.split('v=')[1].split('&')[0]
+                elif 'youtu.be/' in youtube_link:
+                    new_video_id = youtube_link.split('youtu.be/')[1].split('?')[0]
+                else:
+                    new_video_id = youtube_link
+                
+                video_id = new_video_id
+            else:
+                # Extract video ID from existing URL
+                video_id = video.youtube_link.split('/embed/')[1].split('?')[0]
+            
+            # Update embed URL with all parameters
+            video.youtube_link = (
+                f"https://www.youtube.com/embed/{video_id}?"
+                f"start={start_time}&"
+                f"end={end_time}&"
+                "autoplay=0&"
+                "rel=0&"
+                "modestbranding=1&"
+                "controls=1"
+            )
+            
+            video.start_time = start_time
+            video.end_time = end_time
+            
+            db.session.commit()
+            flash('Music video updated successfully!', 'success')
+            return redirect(url_for('manage_music_videos'))
+        
+        except ValueError:
+            db.session.rollback()
+            flash('Invalid time values provided', 'error')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating music video: {str(e)}', 'error')
+    
+    return render_template('edit_music_video.html', video=video, artists=artists)
+
+@app.route('/admin/delete_music_video/<int:video_id>', methods=['POST'])
+@login_required
+def delete_music_video(video_id):
+    if current_user.role != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+    
+    video = MusicVideo.query.get_or_404(video_id)
+    
+    try:
+        db.session.delete(video)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Music video deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 # --- DB init ---
 def create_database():

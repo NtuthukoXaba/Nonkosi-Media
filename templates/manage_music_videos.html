@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Voting Event - Nonkosi Media Admin</title>
+  <title>Music Videos - Nonkosi Media</title>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     :root {
       --primary: #0b3c5d;
@@ -129,17 +128,27 @@
       margin: 0 auto;
     }
 
-    .page-header {
+    /* Music Videos Specific Styles */
+    .header-section {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--light-gray);
     }
 
-    .page-title {
+    .header-section h1 {
       font-size: 1.75rem;
       font-weight: 700;
       color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-section h1 i {
+      color: var(--secondary);
     }
 
     .btn {
@@ -148,7 +157,7 @@
       gap: 0.5rem;
       background-color: var(--secondary);
       color: white;
-      padding: 0.5rem 1.25rem;
+      padding: 0.75rem 1.5rem;
       border-radius: 30px;
       font-size: 0.9rem;
       font-weight: 500;
@@ -164,50 +173,108 @@
       box-shadow: 0 5px 15px rgba(242, 46, 62, 0.3);
     }
 
-    .btn-outline {
-      background-color: transparent;
-      color: var(--secondary);
-      border: 2px solid var(--secondary);
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
     }
 
-    .btn-outline:hover {
-      background-color: var(--secondary);
-      color: white;
-    }
-
-    .btn i {
-      font-size: 0.9rem;
-    }
-
-    .card {
+    .video-card {
+      background-color: white;
       border-radius: 0.5rem;
       overflow: hidden;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+
+    .video-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .video-preview {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+    }
+
+    .video-preview iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       border: none;
     }
 
-    .card-header {
-      background-color: var(--primary);
-      color: white;
-      padding: 1rem 1.5rem;
+    .video-info {
+      padding: 0.75rem 1rem;
+      background-color: rgba(0,0,0,0.05);
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .video-details {
+      padding: 1.25rem;
+    }
+
+    .video-details h3 {
+      font-size: 1.1rem;
       font-weight: 600;
-      border-bottom: none;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
     }
 
-    .form-label {
+    .video-details p {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .video-actions {
+      display: flex;
+      border-top: 1px solid var(--light-gray);
+    }
+
+    .btn-edit, .btn-delete {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      font-size: 0.9rem;
       font-weight: 500;
-      color: var(--dark);
+      text-decoration: none;
+      transition: all 0.2s;
     }
 
-    .form-control, .form-select {
-      border-radius: 0.25rem;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--light-gray);
+    .btn-edit {
+      color: var(--primary);
+      background-color: white;
+      border-right: 1px solid var(--light-gray);
     }
 
-    .form-control:focus, .form-select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 0.25rem rgba(11, 60, 93, 0.25);
+    .btn-edit:hover {
+      background-color: rgba(11, 60, 93, 0.05);
+      color: var(--accent);
+    }
+
+    .btn-delete {
+      color: var(--danger);
+      background-color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-delete:hover {
+      background-color: rgba(239, 68, 68, 0.05);
+    }
+
+    .delete-form {
+      flex: 1;
+      display: flex;
     }
 
     footer {
@@ -238,10 +305,14 @@
         padding: 1rem;
       }
 
-      .page-header {
+      .header-section {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+      }
+
+      .videos-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -270,7 +341,7 @@
         <i class="fas fa-chart-line"></i>
         <span>Charts</span>
       </a>
-      <a href="/admin/voting_events" class="active">
+      <a href="/admin/voting_events">
         <i class="fas fa-vote-yea"></i>
         <span>Voting</span>
       </a>
@@ -282,7 +353,7 @@
         <i class="fas fa-users"></i>
         <span>Journalists</span>
       </a>
-      <a href="/admin/music_videos">
+      <a href="/admin/music_videos" class="active">
         <i class="fas fa-video"></i>
         <span>Music Videos</span>
       </a>
@@ -297,46 +368,44 @@
     </nav>
   </header>
 
-  <main class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-md-8 col-lg-6">
-        <div class="card shadow">
-          <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Create New Voting Event</h4>
-          </div>
-          <div class="card-body">
-            <form method="POST" action="{{ url_for('create_voting_event') }}">
-              <div class="mb-3">
-                <label for="title" class="form-label">Event Title</label>
-                <input type="text" class="form-control" id="title" name="title" required>
-              </div>
-              
-              <div class="mb-3">
-                <label for="category" class="form-label">Category</label>
-                <select class="form-select" id="category" name="category" required>
-                  <option value="">Select a category</option>
-                  <option value="song">Song of the Month</option>
-                  <option value="artist">Artist of the Month</option>
-                  <option value="song_of_year">Song of the Year</option>
-                  <option value="artist_of_year">Artist of the Year</option>
-                </select>
-              </div>
-              
-              <div class="mb-3">
-                <label for="end_date" class="form-label">End Date & Time</label>
-                <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
-              </div>
-              
-              <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Create Event</button>
-                <a href="{{ url_for('voting_events') }}" class="btn btn-outline-secondary">
-                  Cancel
-                </a>
-              </div>
-            </form>
+  <main class="container">
+    <div class="header-section">
+      <h1><i class="fas fa-video"></i> Music Videos</h1>
+      <a href="{{ url_for('add_music_video') }}" class="btn">
+        <i class="fas fa-plus"></i> Add New Video
+      </a>
+    </div>
+
+    <div class="videos-grid">
+      {% for video in videos %}
+      <div class="video-card">
+        <div class="video-preview">
+          <iframe 
+            src="{{ video.youtube_link }}&autoplay=0&rel=0" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+          <div class="video-info">
+            <p>Selected Segment: {{ video.start_time }}s - {{ video.end_time }}s ({{ video.duration }}s)</p>
           </div>
         </div>
+        <div class="video-details">
+          <h3>{{ video.title }}</h3>
+          <p>By {{ video.artist.name }}</p>
+        </div>
+        <div class="video-actions">
+          <a href="{{ url_for('edit_music_video', video_id=video.id) }}" class="btn-edit">
+            <i class="fas fa-edit"></i> Edit
+          </a>
+          <form action="{{ url_for('delete_music_video', video_id=video.id) }}" method="POST" class="delete-form">
+            <button type="submit" class="btn-delete" onclick="return confirm('Are you sure?')">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </form>
+        </div>
       </div>
+      {% endfor %}
     </div>
   </main>
 
@@ -344,14 +413,21 @@
     <p>© {{ datetime.now().year }} Nonkosi Media. All rights reserved.</p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Set minimum datetime to current time
-    document.addEventListener('DOMContentLoaded', function() {
-      const now = new Date();
-      // Format to YYYY-MM-DDTHH:MM (datetime-local input format)
-      const formattedNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-      document.getElementById('end_date').min = formattedNow;
+    // Make video cards clickable (except when clicking on actions)
+    document.querySelectorAll('.video-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        // Don't navigate if clicking on edit/delete buttons
+        if (e.target.closest('.video-actions')) {
+          return;
+        }
+        
+        // Find the first link in the card (edit link) and navigate there
+        const editLink = this.querySelector('.btn-edit');
+        if (editLink) {
+          window.location.href = editLink.href;
+        }
+      });
     });
   </script>
 </body>
