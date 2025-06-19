@@ -1,57 +1,654 @@
-{% extends "index.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Maskandi Music Videos | Nonkosi Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0b3c5d;
+      --secondary: #f22e3e;
+      --dark: #222; 
+      --light: #f5f5f5;
+      --accent: #103b6f;
+      --gray: #666;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Ubuntu', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      -webkit-text-size-adjust: 100%;
+    }
 
-{% block content %}
-<div class="section">
-  <div class="container">
-    <h2 class="section-title">Maskandi Music Videos</h2>
-    
-    <div class="row">
-      {% for video in videos.items %}
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card h-100">
-          <div class="embed-responsive embed-responsive-16by9">
-            <iframe class="embed-responsive-item" 
-                    src="https://www.youtube.com/embed/{{ video.video_url.split('v=')[1] }}?start={{ video.start_time }}&end={{ video.end_time }}&autoplay=0"
-                    allowfullscreen></iframe>
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">{{ video.title }}</h5>
-            <p class="card-text">{{ video.artist.name }}</p>
-          </div>
-          <div class="card-footer">
-            <small class="text-muted">Added {{ video.date_added.strftime('%Y-%m-%d') }}</small>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    /* Header Styles */
+    .site-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 12px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo-text {
+      font-size: 1.2em;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 15px;
+    }
+
+    .main-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 5px 0;
+      position: relative;
+      transition: color 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .main-nav a:hover {
+      color: var(--secondary);
+    }
+
+    .main-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--secondary);
+      transition: width 0.3s;
+    }
+
+    .main-nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .page-hero {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+      color: white;
+      padding: 50px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://images.unsplash.com/photo-1605020420620-20c943cc4669?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+      opacity: 0.15;
+      z-index: 0;
+    }
+
+    .page-hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .page-hero h1 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      line-height: 1.3;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* Search Section */
+    .search-section {
+      background-color: white;
+      padding: 20px 0;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 2px solid #ddd;
+      border-radius: 30px;
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .search-btn {
+      background-color: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 0 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Ubuntu', sans-serif;
+      font-weight: 500;
+    }
+
+    .search-btn:hover {
+      background-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* Videos Grid */
+    .videos-section {
+      padding: 40px 0;
+    }
+
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .video-card {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+
+    .video-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .video-info {
+      padding: 15px;
+    }
+
+    .video-info h3 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+
+    .video-info p {
+      margin: 0 0 10px;
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .video-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--gray);
+      font-size: 0.8rem;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 10px;
+    }
+
+    .page-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'Ubuntu', sans-serif;
+      font-weight: 500;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .page-number {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      color: var(--primary);
+    }
+
+    /* Footer */
+    .site-footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 40px 0 20px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .footer-column h3 {
+      color: var(--secondary);
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    .footer-column h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background-color: var(--secondary);
+    }
+
+    .footer-column p, 
+    .footer-column ul {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .footer-column ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-column a:hover {
+      color: var(--secondary);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .social-links a {
+      color: white;
+      font-size: 1rem;
+      transition: color 0.3s;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .social-links a:hover {
+      color: var(--secondary);
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+    }
+
+    .copyright a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .copyright a:hover {
+      color: var(--secondary);
+    }
+
+    /* Responsive Styles */
+    @media (min-width: 576px) {
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .videos-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .page-hero h1 {
+        font-size: 2.2rem;
+      }
+      
+      .footer-content {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      .videos-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 992px) {
+      .page-hero h1 {
+        font-size: 2.5rem;
+      }
+    }
+
+    /* Mobile menu styles */
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+      
+      .main-nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 15px;
+        gap: 10px;
+      }
+      
+      .main-nav.active {
+        display: flex;
+      }
+      
+      .header-content {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
+    }
+
+    /* Utility Classes */
+    .text-center {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container header-content">
+    <div class="logo-container">
+      <img src="{{ url_for('static', filename='uploads/profile_pics/NonkosiLogopng.png') }}" 
+           alt="Nonkosi Media Logo" 
+           class="logo-img"/>
+      <a href="/" class="logo-text">NONKOSI MEDIA</a>
     </div>
-    
-    <!-- Pagination -->
-    <nav aria-label="Page navigation">
-      <ul class="pagination justify-content-center">
-        {% if videos.has_prev %}
-        <li class="page-item">
-          <a class="page-link" href="{{ url_for('music_videos', page=videos.prev_num) }}" tabindex="-1">Previous</a>
-        </li>
-        {% endif %}
-        
-        {% for page_num in videos.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-          {% if page_num %}
-            <li class="page-item {{ 'active' if videos.page == page_num else '' }}">
-              <a class="page-link" href="{{ url_for('music_videos', page=page_num) }}">{{ page_num }}</a>
-            </li>
-          {% else %}
-            <li class="page-item disabled"><span class="page-link">...</span></li>
-          {% endif %}
-        {% endfor %}
-        
-        {% if videos.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="{{ url_for('music_videos', page=videos.next_num) }}">Next</a>
-        </li>
-        {% endif %}
-      </ul>
+    <button class="menu-toggle" aria-label="Toggle menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <nav class="main-nav">
+      <a href="/">Home</a>
+      <a href="/new_music">New Music</a>
+      <a href="/charts">Charts</a>
+      <a href="/artists">Artists</a>
+      <a href="/music_videos">Music Videos</a>
+      <a href="/vote">Vote</a>
     </nav>
   </div>
-</div>
-{% endblock %}
+</header>
+
+
+
+<!-- Search Section -->
+<section class="search-section">
+  <div class="container search-container">
+    <form class="search-form" action="/music_videos" method="get">
+      <input type="text" name="search" class="search-input" placeholder="Search videos or artists..." value="{{ search_query }}">
+      <button type="submit" class="search-btn">
+        <i class="fas fa-search"></i> Search
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- Videos Section -->
+<section class="videos-section">
+  <div class="container">
+    {% if videos.items %}
+      <div class="videos-grid">
+        {% for video in videos.items %}
+        <div class="video-card fade-in delay-{{ loop.index % 3 }}">
+          <div class="video-container">
+            <!-- Embedded YouTube video with start and end time parameters -->
+            <iframe src="{{ video.youtube_link }}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+          </div>
+          <div class="video-info">
+            <h3>{{ video.title }}</h3>
+            <p>{{ video.artist.name }}</p>
+            <div class="video-meta">
+              <span><i class="far fa-calendar-alt"></i> {{ video.date_added.strftime('%b %d, %Y') }}</span>
+              <span><i class="far fa-clock"></i> 90 sec</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+            <!-- Pagination -->
+      <div class="pagination">
+        {% if videos.has_prev %}
+          <a href="{{ url_for('music_videos', page=videos.prev_num, search=search_query) }}" class="page-btn">
+            <i class="fas fa-chevron-left"></i> Prev
+          </a>
+        {% else %}
+          <button class="page-btn" disabled>
+            <i class="fas fa-chevron-left"></i> Prev
+          </button>
+        {% endif %}
+        
+        <span class="page-number">Page {{ videos.page }} of {{ videos.pages }}</span>
+        
+        {% if videos.has_next %}
+          <a href="{{ url_for('music_videos', page=videos.next_num, search=search_query) }}" class="page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+          </a>
+        {% else %}
+          <button class="page-btn" disabled>
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="text-center">
+        <p>No music videos found.{% if search_query %} Try a different search term.{% else %} Check back later for new uploads.{% endif %}</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>About Us</h3>
+        <p>Nonkosi Media is dedicated to promoting and preserving Maskandi music culture, supporting artists, and connecting fans worldwide.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/news">News</a></li>
+          <li><a href="/new_music">New Music</a></li>
+          <li><a href="/charts">Charts</a></li>
+          <li><a href="/artists">Artists</a></li>
+          <li><a href="/music_videos">Music Videos</a></li>
+          <li><a href="/vote">Vote</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Contact</h3>
+        <ul>
+          <li><i class="fas fa-envelope"></i> info@nonkosimedia.com</li>
+          <li><i class="fas fa-phone"></i> +27 12 345 6789</li>
+          <li><i class="fas fa-map-marker-alt"></i> Johannesburg, South Africa</li>
+        </ul>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 Nonkosi Media. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu toggle functionality
+  const menuToggle = document.querySelector('.menu-toggle');
+  const mainNav = document.querySelector('.main-nav');
+  
+  if (menuToggle && mainNav) {
+    menuToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('active');
+    });
+  }
+
+  // Animation on scroll
+  const fadeElements = document.querySelectorAll('.fade-in');
+  
+  const fadeInOnScroll = function() {
+    for (let i = 0; i < fadeElements.length; i++) {
+      const elem = fadeElements[i];
+      const distInView = elem.getBoundingClientRect().top - window.innerHeight + 20;
+      if (distInView < 0) {
+        elem.classList.add('in-view');
+      }
+    }
+  };
+  
+  window.addEventListener('scroll', fadeInOnScroll);
+  fadeInOnScroll();
+
+  // Prevent zooming on double-tap (for mobile)
+  document.addEventListener('dblclick', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+</script>
+</body>
+</html>

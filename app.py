@@ -1748,6 +1748,31 @@ def delete_music_video(video_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
+@app.route('/music_videos')
+def music_videos():
+    # Get search query if exists
+    search_query = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 6  # 6 videos per page
+    
+    # Start with base query
+    query = MusicVideo.query
+    
+    # Apply search filter if provided
+    if search_query:
+        query = query.filter(
+            (MusicVideo.title.ilike(f'%{search_query}%')) | 
+            (Artist.name.ilike(f'%{search_query}%'))
+        ).join(Artist)
+    else:
+        query = query.order_by(MusicVideo.date_added.desc())
+    
+    # Paginate the results
+    videos = query.paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template('music_videos.html', 
+                         videos=videos,
+                         search_query=search_query)
 
 # --- DB init ---
 def create_database():
