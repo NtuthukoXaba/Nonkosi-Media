@@ -1007,6 +1007,7 @@ def add_artist():
         
         except Exception as e:
             db.session.rollback()
+            app.logger.error(f"Error adding artist: {str(e)}")  # Log the error
             flash(f'Error adding artist: {str(e)}', 'error')
     
     return render_template('add_artist.html')
@@ -1733,11 +1734,17 @@ def music_videos():
                          search_query=search_query)
 
 # --- DB init ---
+# Add this to your create_database() function
 def create_database():
     with app.app_context():
-        db.create_all()
-        create_admin()
-        print("Database initialized successfully!")
+        try:
+            db.create_all()
+            create_admin()
+            # Test connection
+            db.session.execute("SELECT 1")
+            print("Database connection successful!")
+        except Exception as e:
+            print(f"Database connection failed: {str(e)}")
 
 if __name__ == '__main__':
     create_database()
