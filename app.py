@@ -13,7 +13,7 @@ from flask_migrate import Migrate
 # --- App setup ---
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:yCdPFYTvIXIsLCFhzWWFAReXKAEDegxa@mainline.proxy.rlwy.net:49786/railway'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///maskandi.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/profile_pics'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -100,12 +100,11 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)  # ← Increased from 60 to 200
+    password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')
-    profile_pic = db.Column(db.String(200), nullable=False, default='default.jpg')  # ← Also safe to increase
+    profile_pic = db.Column(db.String(100), nullable=False, default='default.jpg')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    articles = db.relationship('News', backref='author', lazy=True)
-
+    articles = db.relationship('News', backref='author', lazy=True)  # This creates the relationship
 
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
@@ -1007,7 +1006,6 @@ def add_artist():
         
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Error adding artist: {str(e)}")  # Log the error
             flash(f'Error adding artist: {str(e)}', 'error')
     
     return render_template('add_artist.html')
@@ -1734,17 +1732,11 @@ def music_videos():
                          search_query=search_query)
 
 # --- DB init ---
-# Add this to your create_database() function
 def create_database():
     with app.app_context():
-        try:
-            db.create_all()
-            create_admin()
-            # Test connection
-            db.session.execute("SELECT 1")
-            print("Database connection successful!")
-        except Exception as e:
-            print(f"Database connection failed: {str(e)}")
+        db.create_all()
+        create_admin()
+        print("Database initialized successfully!")
 
 if __name__ == '__main__':
     create_database()
