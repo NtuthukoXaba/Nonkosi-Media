@@ -13,7 +13,7 @@ from flask_migrate import Migrate
 # --- App setup ---
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:yCdPFYTvIXIsLCFhzWWFAReXKAEDegxa@mainline.proxy.rlwy.net:49786/maskandidb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:yCdPFYTvIXIsLCFhzWWFAReXKAEDegxa@mainline.proxy.rlwy.net:49786/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/profile_pics'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -100,11 +100,12 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
+    password = db.Column(db.String(200), nullable=False)  # ← Increased from 60 to 200
     role = db.Column(db.String(20), nullable=False, default='user')
-    profile_pic = db.Column(db.String(100), nullable=False, default='default.jpg')
+    profile_pic = db.Column(db.String(200), nullable=False, default='default.jpg')  # ← Also safe to increase
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    articles = db.relationship('News', backref='author', lazy=True)  # This creates the relationship
+    articles = db.relationship('News', backref='author', lazy=True)
+
 
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
