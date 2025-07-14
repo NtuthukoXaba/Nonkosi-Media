@@ -10,15 +10,37 @@ from datetime import datetime, timedelta
 from flask_migrate import Migrate
 
 # --- App setup ---
+# --- App setup ---
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///maskandi.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/profile_pics'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['ALLOWED_VIDEO_EXTENSIONS'] = {'mp4', 'mov', 'avi', 'mkv', 'webm'}
+app.config['VIDEO_UPLOAD_FOLDER'] = 'static/uploads/videos'
+os.makedirs(app.config['VIDEO_UPLOAD_FOLDER'], exist_ok=True)
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# File validation functions
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+def allowed_video_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_VIDEO_EXTENSIONS']
+
+# Add this to your app.py
+@app.template_filter('format_duration')
+def format_duration(seconds):
+    if not seconds:
+        return "N/A"
+    minutes, seconds = divmod(seconds, 60)
+    return f"{minutes}:{seconds:02d}"
+
 
 # --- Database and LoginManager ---
 db = SQLAlchemy(app)
@@ -130,18 +152,21 @@ class MusicVideo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
-    youtube_link = db.Column(db.String(200), nullable=False)
+    file_path = db.Column(db.String(200))
     start_time = db.Column(db.Integer, default=0)  # Start time in seconds
     end_time = db.Column(db.Integer)  # End time in seconds
     date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_featured = db.Column(db.Boolean, default=False)
+    description = db.Column(db.Text)  # Add this line for video descriptions
     
     artist = db.relationship('Artist', backref='music_videos')
     
     @property
     def duration(self):
+        if self.end_time is None or self.start_time is None:
+            return 0  # or some default value
         return self.end_time - self.start_time
-
+    
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -1576,77 +1601,47 @@ def add_music_video():
         try:
             title = request.form.get('title')
             artist_id = request.form.get('artist_id')
-            youtube_link = request.form.get('youtube_link')
-            start_time = int(request.form.get('start_time', 0))
-            end_time = int(request.form.get('end_time'))
+            description = request.form.get('description', '')  # Default to empty string if not provided
             is_featured = 'is_featured' in request.form
             
-            # Validate inputs
-            if not all([title, artist_id, youtube_link, end_time]):
-                flash('All fields are required', 'error')
-                return redirect(url_for('add_music_video'))
-            
-            # Validate YouTube link
-            if 'youtube.com' not in youtube_link and 'youtu.be' not in youtube_link:
-                flash('Please provide a valid YouTube link', 'error')
-                return redirect(url_for('add_music_video'))
-            
-            # Validate time values
-            if start_time < 0 or end_time <= 0:
-                flash('Time values must be positive numbers', 'error')
-                return redirect(url_for('add_music_video'))
+            # Handle file upload
+            if 'video_file' not in request.files:
+                flash('No video file selected', 'error')
+                return redirect(request.url)
                 
-            if start_time >= end_time:
-                flash('End time must be greater than start time', 'error')
-                return redirect(url_for('add_music_video'))
-            
-            # Validate duration (max 90 seconds)
-            if (end_time - start_time) > 90:
-                flash('Video segment cannot exceed 90 seconds', 'error')
-                return redirect(url_for('add_music_video'))
-            
-            # Extract video ID from URL
-            if 'youtube.com/watch?v=' in youtube_link:
-                video_id = youtube_link.split('v=')[1].split('&')[0]
-            elif 'youtu.be/' in youtube_link:
-                video_id = youtube_link.split('youtu.be/')[1].split('?')[0]
+            file = request.files['video_file']
+            if file.filename == '':
+                flash('No video file selected', 'error')
+                return redirect(request.url)
+                
+            if file and allowed_video_file(file.filename):
+                filename = secure_filename(f"video_{datetime.now().timestamp()}_{file.filename}")
+                filepath = os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                
+                # Create new video record
+                new_video = MusicVideo(
+                    title=title,
+                    artist_id=artist_id,
+                    file_path=filename,
+                    description=description,  # Now this will work
+                    is_featured=is_featured
+                )
+                
+                db.session.add(new_video)
+                db.session.commit()
+                flash('Video uploaded successfully!', 'success')
+                return redirect(url_for('manage_music_videos'))
             else:
-                video_id = youtube_link
-            
-            # Create enhanced embed URL with parameters
-            embed_url = (
-                f"https://www.youtube.com/embed/{video_id}?"
-                f"start={start_time}&"
-                f"end={end_time}&"
-                "autoplay=0&"
-                "rel=0&"
-                "modestbranding=1&"
-                "controls=1"
-            )
-            
-            new_video = MusicVideo(
-                title=title,
-                artist_id=artist_id,
-                youtube_link=embed_url,
-                start_time=start_time,
-                end_time=end_time,
-                is_featured=is_featured
-            )
-            
-            db.session.add(new_video)
-            db.session.commit()
-            flash('Music video added successfully!', 'success')
-            return redirect(url_for('manage_music_videos'))
+                flash(f'Invalid video file type. Allowed types: {", ".join(app.config["ALLOWED_VIDEO_EXTENSIONS"])}', 'error')
         
-        except ValueError:
-            db.session.rollback()
-            flash('Invalid time values provided', 'error')
         except Exception as e:
             db.session.rollback()
-            flash(f'Error adding music video: {str(e)}', 'error')
+            flash(f'Error uploading video: {str(e)}', 'error')
     
     artists = Artist.query.order_by(Artist.name).all()
     return render_template('add_music_video.html', artists=artists)
+
 
 @app.route('/admin/edit_music_video/<int:video_id>', methods=['GET', 'POST'])
 @login_required
@@ -1660,73 +1655,39 @@ def edit_music_video(video_id):
     
     if request.method == 'POST':
         try:
-            video.title = request.form.get('title')
-            video.artist_id = request.form.get('artist_id')
-            youtube_link = request.form.get('youtube_link')
-            start_time = int(request.form.get('start_time', 0))
-            end_time = int(request.form.get('end_time'))
-            video.is_featured = 'is_featured' in request.form
+            # Get form data with defaults
+            title = request.form.get('title', video.title)
+            artist_id = request.form.get('artist_id', video.artist_id)
+            description = request.form.get('description', video.description)
+            is_featured = 'is_featured' in request.form
             
-            # Validate inputs
-            if not all([video.title, video.artist_id, youtube_link, end_time]):
-                flash('All fields are required', 'error')
-                return redirect(url_for('edit_music_video', video_id=video.id))
+            # Handle file upload if a new file was provided
+            if 'video_file' in request.files:
+                file = request.files['video_file']
+                if file and file.filename and allowed_video_file(file.filename):
+                    filename = secure_filename(f"video_{datetime.now().timestamp()}_{file.filename}")
+                    filepath = os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+                    
+                    # Delete old video file if it exists
+                    if video.file_path:
+                        try:
+                            os.remove(os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], video.file_path))
+                        except:
+                            pass
+                    
+                    video.file_path = filename
             
-            # Validate time values
-            if start_time < 0 or end_time <= 0:
-                flash('Time values must be positive numbers', 'error')
-                return redirect(url_for('edit_music_video', video_id=video.id))
-                
-            if start_time >= end_time:
-                flash('End time must be greater than start time', 'error')
-                return redirect(url_for('edit_music_video', video_id=video.id))
-            
-            # Validate duration (max 90 seconds)
-            if (end_time - start_time) > 90:
-                flash('Video segment cannot exceed 90 seconds', 'error')
-                return redirect(url_for('edit_music_video', video_id=video.id))
-            
-            # Check if YouTube link changed
-            if youtube_link != video.youtube_link:
-                # Validate new YouTube link
-                if 'youtube.com' not in youtube_link and 'youtu.be' not in youtube_link:
-                    flash('Please provide a valid YouTube link', 'error')
-                    return redirect(url_for('edit_music_video', video_id=video.id))
-                
-                # Extract video ID from new URL
-                if 'youtube.com/watch?v=' in youtube_link:
-                    new_video_id = youtube_link.split('v=')[1].split('&')[0]
-                elif 'youtu.be/' in youtube_link:
-                    new_video_id = youtube_link.split('youtu.be/')[1].split('?')[0]
-                else:
-                    new_video_id = youtube_link
-                
-                video_id = new_video_id
-            else:
-                # Extract video ID from existing URL
-                video_id = video.youtube_link.split('/embed/')[1].split('?')[0]
-            
-            # Update embed URL with all parameters
-            video.youtube_link = (
-                f"https://www.youtube.com/embed/{video_id}?"
-                f"start={start_time}&"
-                f"end={end_time}&"
-                "autoplay=0&"
-                "rel=0&"
-                "modestbranding=1&"
-                "controls=1"
-            )
-            
-            video.start_time = start_time
-            video.end_time = end_time
+            # Update video properties
+            video.title = title
+            video.artist_id = artist_id
+            video.description = description
+            video.is_featured = is_featured
             
             db.session.commit()
             flash('Music video updated successfully!', 'success')
             return redirect(url_for('manage_music_videos'))
         
-        except ValueError:
-            db.session.rollback()
-            flash('Invalid time values provided', 'error')
         except Exception as e:
             db.session.rollback()
             flash(f'Error updating music video: {str(e)}', 'error')
@@ -1750,24 +1711,20 @@ def delete_music_video(video_id):
         return jsonify({'success': False, 'message': str(e)}), 500
 @app.route('/music_videos')
 def music_videos():
-    # Get search query if exists
     search_query = request.args.get('search', '')
     page = request.args.get('page', 1, type=int)
-    per_page = 6  # 6 videos per page
+    per_page = 6
     
-    # Start with base query
-    query = MusicVideo.query
+    query = db.session.query(MusicVideo).join(Artist)
     
-    # Apply search filter if provided
     if search_query:
         query = query.filter(
             (MusicVideo.title.ilike(f'%{search_query}%')) | 
             (Artist.name.ilike(f'%{search_query}%'))
-        ).join(Artist)
+        )
     else:
         query = query.order_by(MusicVideo.date_added.desc())
     
-    # Paginate the results
     videos = query.paginate(page=page, per_page=per_page, error_out=False)
     
     return render_template('music_videos.html', 

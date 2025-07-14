@@ -478,6 +478,28 @@
     .text-center {
       text-align: center;
     }
+    .video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+.video-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
   </style>
 </head>
 <body>
@@ -527,25 +549,25 @@
         {% for video in videos.items %}
         <div class="video-card fade-in delay-{{ loop.index % 3 }}">
           <div class="video-container">
-            <!-- Embedded YouTube video with start and end time parameters -->
-            <iframe src="{{ video.youtube_link }}" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen></iframe>
+            <!-- Replace YouTube iframe with HTML5 video player -->
+            <video controls poster="{{ url_for('static', filename='uploads/videos/thumbnails/' + video.file_path + '.jpg') }}">
+              <source src="{{ url_for('static', filename='uploads/videos/' + video.file_path) }}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
           </div>
           <div class="video-info">
             <h3>{{ video.title }}</h3>
             <p>{{ video.artist.name }}</p>
             <div class="video-meta">
               <span><i class="far fa-calendar-alt"></i> {{ video.date_added.strftime('%b %d, %Y') }}</span>
-              <span><i class="far fa-clock"></i> 90 sec</span>
+              <span><i class="far fa-clock"></i> {{ video.duration|format_duration }}</span>
             </div>
           </div>
         </div>
         {% endfor %}
       </div>
       
-            <!-- Pagination -->
+      <!-- Pagination -->
       <div class="pagination">
         {% if videos.has_prev %}
           <a href="{{ url_for('music_videos', page=videos.prev_num, search=search_query) }}" class="page-btn">

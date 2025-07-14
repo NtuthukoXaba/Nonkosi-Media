@@ -354,13 +354,13 @@
 
   <main class="container">
     <div class="header-section">
-      <h1><i class="fas fa-video"></i> Add New Music Video</h1>
+      <h1><i class="fas fa-video"></i> Upload Music Video</h1>
       <a href="{{ url_for('manage_music_videos') }}" class="btn">
         <i class="fas fa-arrow-left"></i> Back to Videos
       </a>
     </div>
 
-    <form method="POST" class="video-form">
+    <form method="POST" enctype="multipart/form-data" class="video-form">
       <div class="form-group">
         <label for="title">Video Title</label>
         <input type="text" id="title" name="title" required>
@@ -377,19 +377,24 @@
       </div>
 
       <div class="form-group">
-        <label for="youtube_link">YouTube Link</label>
-        <input type="url" id="youtube_link" name="youtube_link" placeholder="https://www.youtube.com/watch?v=..." required>
-      </div>
+    <label>Video File</label>
+    <div class="file-upload" id="upload-container">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Click to browse or drag & drop video file</p>
+        <p class="file-info" id="file-info">No file selected</p>
+        <input type="file" id="video_file" name="video_file" accept="video/*" required>
+    </div>
+    <small class="form-text">Accepted formats: MP4, MOV, AVI, MKV, WEBM</small>
+    <div class="video-preview-container" id="video-preview" style="display: none;">
+        <video controls id="preview-video" style="max-width: 100%;">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</div>
 
       <div class="form-group">
-        <label for="start_time">Start Time (seconds)</label>
-        <input type="number" id="start_time" name="start_time" min="0" value="0" required>
-      </div>
-
-      <div class="form-group">
-        <label for="end_time">End Time (seconds)</label>
-        <input type="number" id="end_time" name="end_time" min="1" required>
-        <small class="form-text">Maximum 90 seconds duration</small>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="3"></textarea>
       </div>
 
       <div class="form-check">
@@ -398,7 +403,7 @@
       </div>
 
       <button type="submit" class="btn-submit">
-        <i class="fas fa-save"></i> Save Video
+        <i class="fas fa-upload"></i> Upload Video
       </button>
     </form>
   </main>
@@ -409,45 +414,77 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const startInput = document.getElementById('start_time');
-      const endInput = document.getElementById('end_time');
-      const durationWarning = document.createElement('div');
-      durationWarning.className = 'duration-warning';
-      endInput.parentNode.appendChild(durationWarning);
+      const uploadContainer = document.getElementById('upload-container');
+      const fileInput = document.getElementById('video_file');
+      const fileInfo = document.getElementById('file-info');
+      const videoPreview = document.getElementById('video-preview');
+      const previewVideo = document.getElementById('preview-video');
 
-      function validateDuration() {
-        const start = parseInt(startInput.value) || 0;
-        const end = parseInt(endInput.value) || 0;
-        const duration = end - start;
+      // Handle click on upload container
+      uploadContainer.addEventListener('click', function() {
+        fileInput.click();
+      });
 
-        if (duration > 90) {
-          durationWarning.textContent = `Duration exceeds 90 seconds (currently ${duration}s)`;
-          endInput.setCustomValidity('Duration cannot exceed 90 seconds');
-        } else if (duration <= 0) {
-          durationWarning.textContent = 'End time must be after start time';
-          endInput.setCustomValidity('End time must be after start time');
-        } else {
-          durationWarning.textContent = `Duration: ${duration} seconds`;
-          endInput.setCustomValidity('');
-        }
-      }
+      // Handle drag and drop
+      uploadContainer.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'var(--secondary)';
+        this.style.backgroundColor = 'rgba(242, 46, 62, 0.1)';
+      });
 
-      startInput.addEventListener('input', validateDuration);
-      endInput.addEventListener('input', validateDuration);
-      
-      // Initial validation
-      validateDuration();
+      uploadContainer.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'var(--light-gray)';
+        this.style.backgroundColor = 'transparent';
+      });
 
-      // Validate YouTube URL format
-      const youtubeInput = document.getElementById('youtube_link');
-      youtubeInput.addEventListener('change', function() {
-        const url = this.value;
-        if (url && !url.match(/^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/)) {
-          this.setCustomValidity('Please enter a valid YouTube URL');
-        } else {
-          this.setCustomValidity('');
+      uploadContainer.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'var(--light-gray)';
+        this.style.backgroundColor = 'transparent';
+        
+        if (e.dataTransfer.files.length) {
+          fileInput.files = e.dataTransfer.files;
+          handleFileSelect(e.dataTransfer.files[0]);
         }
       });
+
+      // Handle file selection
+      fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          handleFileSelect(this.files[0]);
+        }
+      });
+
+      function handleFileSelect(file) {
+        // Update file info
+        fileInfo.textContent = `${file.name} (${formatFileSize(file.size)})`;
+        
+        // Validate file type
+        if (!file.type.startsWith('video/')) {
+          alert('Please select a valid video file');
+          return;
+        }
+
+        // Show preview
+        const videoURL = URL.createObjectURL(file);
+        previewVideo.src = videoURL;
+        videoPreview.style.display = 'block';
+        
+        // Get duration when metadata is loaded
+        previewVideo.onloadedmetadata = function() {
+          const duration = previewVideo.duration;
+          fileInfo.textContent += ` | Duration: ${duration.toFixed(2)}s`;
+        };
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
     });
   </script>
 </body>
