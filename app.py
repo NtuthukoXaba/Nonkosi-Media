@@ -7,9 +7,7 @@ from werkzeug.utils import secure_filename
 import os
 from flask import request
 from datetime import datetime, timedelta
-from flask_migrate import Migrate
 
-# --- App setup ---
 # --- App setup ---
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
@@ -17,34 +15,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///maskandi.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/profile_pics'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['ALLOWED_VIDEO_EXTENSIONS'] = {'mp4', 'mov', 'avi', 'mkv', 'webm'}
-app.config['VIDEO_UPLOAD_FOLDER'] = 'static/uploads/videos'
-os.makedirs(app.config['VIDEO_UPLOAD_FOLDER'], exist_ok=True)
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# File validation functions
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
-def allowed_video_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_VIDEO_EXTENSIONS']
-
-# Add this to your app.py
-@app.template_filter('format_duration')
-def format_duration(seconds):
-    if not seconds:
-        return "N/A"
-    minutes, seconds = divmod(seconds, 60)
-    return f"{minutes}:{seconds:02d}"
-
-
 # --- Database and LoginManager ---
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -148,25 +124,6 @@ class Song(db.Model):
     artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
     chart_position = db.Column(db.Integer)
 
-class MusicVideo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False)
-    file_path = db.Column(db.String(200))
-    start_time = db.Column(db.Integer, default=0)  # Start time in seconds
-    end_time = db.Column(db.Integer)  # End time in seconds
-    date_added = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    is_featured = db.Column(db.Boolean, default=False)
-    description = db.Column(db.Text)  # Add this line for video descriptions
-    
-    artist = db.relationship('Artist', backref='music_videos')
-    
-    @property
-    def duration(self):
-        if self.end_time is None or self.start_time is None:
-            return 0  # or some default value
-        return self.end_time - self.start_time
-    
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -1580,156 +1537,6 @@ def admin_stats():
         'pending_articles': News.query.filter_by(is_published=False).count(),
         'active_votes': VoteEvent.query.filter(VoteEvent.is_active==True, VoteEvent.end_date >= datetime.utcnow()).count()
     })
-@app.route('/admin/music_videos')
-@login_required
-def manage_music_videos():
-    if current_user.role != 'admin':
-        flash('You are not authorized to access this page', 'error')
-        return redirect(url_for('home'))
-    
-    videos = MusicVideo.query.order_by(MusicVideo.date_added.desc()).all()
-    return render_template('manage_music_videos.html', videos=videos)
-
-@app.route('/admin/add_music_video', methods=['GET', 'POST'])
-@login_required
-def add_music_video():
-    if current_user.role != 'admin':
-        flash('You are not authorized to access this page', 'error')
-        return redirect(url_for('home'))
-    
-    if request.method == 'POST':
-        try:
-            title = request.form.get('title')
-            artist_id = request.form.get('artist_id')
-            description = request.form.get('description', '')  # Default to empty string if not provided
-            is_featured = 'is_featured' in request.form
-            
-            # Handle file upload
-            if 'video_file' not in request.files:
-                flash('No video file selected', 'error')
-                return redirect(request.url)
-                
-            file = request.files['video_file']
-            if file.filename == '':
-                flash('No video file selected', 'error')
-                return redirect(request.url)
-                
-            if file and allowed_video_file(file.filename):
-                filename = secure_filename(f"video_{datetime.now().timestamp()}_{file.filename}")
-                filepath = os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                
-                # Create new video record
-                new_video = MusicVideo(
-                    title=title,
-                    artist_id=artist_id,
-                    file_path=filename,
-                    description=description,  # Now this will work
-                    is_featured=is_featured
-                )
-                
-                db.session.add(new_video)
-                db.session.commit()
-                flash('Video uploaded successfully!', 'success')
-                return redirect(url_for('manage_music_videos'))
-            else:
-                flash(f'Invalid video file type. Allowed types: {", ".join(app.config["ALLOWED_VIDEO_EXTENSIONS"])}', 'error')
-        
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error uploading video: {str(e)}', 'error')
-    
-    artists = Artist.query.order_by(Artist.name).all()
-    return render_template('add_music_video.html', artists=artists)
-
-
-@app.route('/admin/edit_music_video/<int:video_id>', methods=['GET', 'POST'])
-@login_required
-def edit_music_video(video_id):
-    if current_user.role != 'admin':
-        flash('You are not authorized to access this page', 'error')
-        return redirect(url_for('home'))
-    
-    video = MusicVideo.query.get_or_404(video_id)
-    artists = Artist.query.order_by(Artist.name).all()
-    
-    if request.method == 'POST':
-        try:
-            # Get form data with defaults
-            title = request.form.get('title', video.title)
-            artist_id = request.form.get('artist_id', video.artist_id)
-            description = request.form.get('description', video.description)
-            is_featured = 'is_featured' in request.form
-            
-            # Handle file upload if a new file was provided
-            if 'video_file' in request.files:
-                file = request.files['video_file']
-                if file and file.filename and allowed_video_file(file.filename):
-                    filename = secure_filename(f"video_{datetime.now().timestamp()}_{file.filename}")
-                    filepath = os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], filename)
-                    file.save(filepath)
-                    
-                    # Delete old video file if it exists
-                    if video.file_path:
-                        try:
-                            os.remove(os.path.join(app.config['VIDEO_UPLOAD_FOLDER'], video.file_path))
-                        except:
-                            pass
-                    
-                    video.file_path = filename
-            
-            # Update video properties
-            video.title = title
-            video.artist_id = artist_id
-            video.description = description
-            video.is_featured = is_featured
-            
-            db.session.commit()
-            flash('Music video updated successfully!', 'success')
-            return redirect(url_for('manage_music_videos'))
-        
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating music video: {str(e)}', 'error')
-    
-    return render_template('edit_music_video.html', video=video, artists=artists)
-
-@app.route('/admin/delete_music_video/<int:video_id>', methods=['POST'])
-@login_required
-def delete_music_video(video_id):
-    if current_user.role != 'admin':
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
-    
-    video = MusicVideo.query.get_or_404(video_id)
-    
-    try:
-        db.session.delete(video)
-        db.session.commit()
-        return jsonify({'success': True, 'message': 'Music video deleted successfully'})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 500
-@app.route('/music_videos')
-def music_videos():
-    search_query = request.args.get('search', '')
-    page = request.args.get('page', 1, type=int)
-    per_page = 6
-    
-    query = db.session.query(MusicVideo).join(Artist)
-    
-    if search_query:
-        query = query.filter(
-            (MusicVideo.title.ilike(f'%{search_query}%')) | 
-            (Artist.name.ilike(f'%{search_query}%'))
-        )
-    else:
-        query = query.order_by(MusicVideo.date_added.desc())
-    
-    videos = query.paginate(page=page, per_page=per_page, error_out=False)
-    
-    return render_template('music_videos.html', 
-                         videos=videos,
-                         search_query=search_query)
 
 # --- DB init ---
 def create_database():
