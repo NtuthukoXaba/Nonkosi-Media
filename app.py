@@ -13,7 +13,8 @@ from flask_migrate import Migrate
 # --- App setup ---
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///maskandi.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+#postgresql://maskandi_db_user:Rvtah85TIadnsTuLMqNE5DNi4WosmUOo@dpg-d1u2qf49c44c73citofg-a.oregon-postgres.render.com/maskandi_db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/profile_pics'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
