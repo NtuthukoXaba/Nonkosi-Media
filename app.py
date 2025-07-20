@@ -48,6 +48,22 @@ def format_duration(seconds):
 # --- Database and LoginManager ---
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+with app.app_context():
+    if not os.path.exists('migrations'):
+        db.create_all()
+        init_command = upgrade_command = stamp_command = None
+        try:
+            init_command = migrate.init()
+            stamp_command = migrate.stamp()
+            upgrade_command = migrate.upgrade()
+        except Exception as e:
+            print(f"Migration initialization error: {e}")
+            if init_command:
+                init_command.run()
+            if stamp_command:
+                stamp_command.run()
+            if upgrade_command:
+                upgrade_command.run()
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -1735,12 +1751,16 @@ def music_videos():
                          search_query=search_query)
 
 # --- DB init ---
+# --- DB init ---
 def create_database():
     with app.app_context():
+        # Create all tables
         db.create_all()
+        # Create admin user
         create_admin()
         print("Database initialized successfully!")
 
 if __name__ == '__main__':
+    # Initialize the database before running the app
     create_database()
     app.run(host='0.0.0.0', port=5000)
