@@ -1752,14 +1752,26 @@ def music_videos():
 
 # --- DB init ---
 # --- DB init ---
+d# --- DB init ---
 def create_database():
     with app.app_context():
-        # Create all tables
-        db.create_all()
-        # Create admin user
-        create_admin()
-        print("Database initialized successfully!")
-
+        try:
+            # Initialize Flask-Migrate
+            from flask_migrate import upgrade
+            upgrade()
+            
+            # Create admin user
+            create_admin()
+            print("Database initialized successfully!")
+        except Exception as e:
+            print(f"Error initializing database: {e}")
+            # If migrations fail, try creating tables directly
+            try:
+                db.create_all()
+                create_admin()
+                print("Created tables directly (migrations failed)")
+            except Exception as e2:
+                print(f"Failed to create tables directly: {e2}")
 if __name__ == '__main__':
     # Initialize the database before running the app
     create_database()
