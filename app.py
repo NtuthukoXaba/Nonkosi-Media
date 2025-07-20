@@ -12,11 +12,8 @@ from flask_migrate import Migrate
 # --- App setup ---
 # --- App setup ---
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://maskandi_db_user:Rvtah85TIadnsTuLMqNE5DNi4WosmUOo@dpg-d1u2qf49c44c73citofg-a/maskandi_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///maskandi.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads/profile_pics'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
@@ -48,22 +45,6 @@ def format_duration(seconds):
 # --- Database and LoginManager ---
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-with app.app_context():
-    if not os.path.exists('migrations'):
-        db.create_all()
-        init_command = upgrade_command = stamp_command = None
-        try:
-            init_command = migrate.init()
-            stamp_command = migrate.stamp()
-            upgrade_command = migrate.upgrade()
-        except Exception as e:
-            print(f"Migration initialization error: {e}")
-            if init_command:
-                init_command.run()
-            if stamp_command:
-                stamp_command.run()
-            if upgrade_command:
-                upgrade_command.run()
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -1751,28 +1732,12 @@ def music_videos():
                          search_query=search_query)
 
 # --- DB init ---
-# --- DB init ---
-d# --- DB init ---
 def create_database():
     with app.app_context():
-        try:
-            # Initialize Flask-Migrate
-            from flask_migrate import upgrade
-            upgrade()
-            
-            # Create admin user
-            create_admin()
-            print("Database initialized successfully!")
-        except Exception as e:
-            print(f"Error initializing database: {e}")
-            # If migrations fail, try creating tables directly
-            try:
-                db.create_all()
-                create_admin()
-                print("Created tables directly (migrations failed)")
-            except Exception as e2:
-                print(f"Failed to create tables directly: {e2}")
+        db.create_all()
+        create_admin()
+        print("Database initialized successfully!")
+
 if __name__ == '__main__':
-    # Initialize the database before running the app
     create_database()
     app.run(host='0.0.0.0', port=5000)
